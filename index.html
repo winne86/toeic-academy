@@ -526,6 +526,147 @@
   }
 
   // ============================================================
+  //  TUTOR REPORT — exportable progress snapshot for the human tutor
+  // ============================================================
+
+  function buildTutorReport(state) {
+    const recentSession = state.history[state.history.length - 1];
+    const allHistory = state.history.slice(-7); // last week
+
+    const wrongQuestions = Object.entries(state.questionStats)
+      .filter(([_, s]) => s.wrong > 0)
+      .map(([qid, s]) => {
+        const q = QUESTIONS.find(x => x.id === qid);
+        return q ? {
+          id: qid,
+          day: q.day,
+          topic: q.topic,
+          stem: q.stem,
+          correctAnswer: q.options[q.answer],
+          attempts: s.attempts,
+          wrong: s.wrong,
+          correct: s.correct,
+        } : null;
+      })
+      .filter(Boolean);
+
+    const weakVocab = Object.entries(state.vocabStats)
+      .filter(([w, s]) => (s.mastery || 0) < 3 && s.seen > 0)
+      .map(([w, s]) => {
+        const v = VOCABULARY[w];
+        return {
+          word: w,
+          zh: v?.zh || '',
+          mastery: s.mastery,
+          seen: s.seen,
+          correct: s.correct,
+          wrong: s.wrong,
+        };
+      })
+      .sort((a, b) => a.mastery - b.mastery);
+
+    const masteredVocab = Object.entries(state.vocabStats)
+      .filter(([w, s]) => (s.mastery || 0) >= 4)
+      .map(([w]) => w);
+
+    const topicConfidence = Object.entries(state.topicStats).map(([t, s]) => ({
+      topic: t,
+      title: GRAMMAR_LESSONS[t]?.title || (t === 'vocab' ? '單字辨識' : t === 'mixed' ? '時態綜合' : t),
+      confidence: s.confidence,
+      correct: s.correct,
+      wrong: s.wrong,
+    })).sort((a, b) => a.confidence - b.confidence);
+
+    return {
+      generatedAt: new Date().toISOString(),
+      summary: {
+        startDate: state.startDate,
+        currentDay: state.currentDay,
+        streak: state.streak,
+        sessionsCompleted: state.history.length,
+        totalCorrect: state.history.reduce((s, h) => s + h.correct, 0),
+        totalAttempted: state.history.reduce((s, h) => s + h.total, 0),
+        masteredVocabCount: masteredVocab.length,
+        seenVocabCount: Object.keys(state.vocabStats).length,
+        currentReviewQueueSize: (state.reviewQueue || []).length,
+      },
+      lastSession: recentSession || null,
+      recentHistory: allHistory,
+      topicConfidence,
+      weakVocab,
+      wrongQuestions,
+    };
+  }
+
+  function formatTutorReportText(report) {
+    const lines = [];
+    lines.push('=== 多益學習進度回報 (TOEIC Progress Report) ===');
+    lines.push(`匯出時間: ${new Date(report.generatedAt).toLocaleString('zh-TW')}`);
+    lines.push('');
+    lines.push('【總覽】');
+    lines.push(`- 起始日期: ${report.summary.startDate}`);
+    lines.push(`- 目前 Day: ${report.summary.currentDay}`);
+    lines.push(`- 連續學習: ${report.summary.streak} 天`);
+    lines.push(`- 完成課程數: ${report.summary.sessionsCompleted}`);
+    lines.push(`- 累計答題: ${report.summary.totalCorrect} / ${report.summary.totalAttempted}`);
+    lines.push(`- 已掌握單字: ${report.summary.masteredVocabCount} / ${report.summary.seenVocabCount}`);
+    lines.push(`- 待複習題: ${report.summary.currentReviewQueueSize} 題`);
+    lines.push('');
+    if (report.lastSession) {
+      const ls = report.lastSession;
+      lines.push('【最近一次課程】');
+      lines.push(`- 日期: ${ls.date} · Day ${ls.day}`);
+      lines.push(`- 答對: ${ls.correct} / ${ls.total} (${Math.round(ls.correct / ls.total * 100)}%)`);
+      lines.push('');
+    }
+    if (report.topicConfidence.length > 0) {
+      lines.push('【觀念信心度】');
+      report.topicConfidence.forEach(t => {
+        lines.push(`- ${t.title}: ${t.confidence}% (對 ${t.correct} / 錯 ${t.wrong})`);
+      });
+      lines.push('');
+    }
+    if (report.weakVocab.length > 0) {
+      lines.push('【還不熟的單字】');
+      report.weakVocab.forEach(v => {
+        lines.push(`- ${v.word} (${v.zh}) · 熟練度 ${v.mastery}/5 · 對 ${v.correct} 錯 ${v.wrong}`);
+      });
+      lines.push('');
+    }
+    if (report.wrongQuestions.length > 0) {
+      lines.push('【曾答錯的題目】');
+      report.wrongQuestions.forEach(q => {
+        lines.push(`- [Day ${q.day} · ${q.topic}] ${q.stem}`);
+        lines.push(`  正解: ${q.correctAnswer} · 答錯 ${q.wrong} 次 / 嘗試 ${q.attempts} 次`);
+      });
+      lines.push('');
+    }
+    lines.push('=== 請把以上完整訊息貼給家教，會根據資料調整下一階段教材 ===');
+    return lines.join('\n');
+  }
+
+  async function shareReport(state) {
+    const report = buildTutorReport(state);
+    const text = formatTutorReportText(report);
+    // Try iOS native share sheet first
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: '多益學習進度回報', text });
+        return { ok: true, method: 'share' };
+      } catch (err) {
+        if (err && err.name === 'AbortError') return { ok: false, method: 'cancel' };
+      }
+    }
+    // Fallback: clipboard
+    try {
+      await navigator.clipboard.writeText(text);
+      return { ok: true, method: 'clipboard' };
+    } catch (err) {
+      return { ok: false, method: 'manual', text };
+    }
+  }
+
+  // ============================================================
   //  COMPONENTS
   // ============================================================
 
@@ -629,6 +770,11 @@
               ))}
             </div>
           </div>
+        )}
+
+        {/* Tutor report — only show if user has any history */}
+        {state.history.length > 0 && (
+          <TutorReportButton state={state} primary />
         )}
 
         {/* Roadmap */}
@@ -1117,11 +1263,63 @@
           </div>
         </div>
 
+        <TutorReportButton state={state} primary />
+
         <div className="text-center">
-          <button onClick={onExit} className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-brand-600 active:scale-[0.98] hover:bg-brand-700 text-white font-bold shadow-soft transition">
+          <button onClick={onExit} className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white border-2 border-slate-200 active:bg-slate-50 hover:border-slate-300 text-slate-700 font-bold transition">
             回到首頁
           </button>
         </div>
+      </div>
+    );
+  }
+
+  function TutorReportButton({ state, primary }) {
+    const [status, setStatus] = useState(null); // 'sharing' | 'copied' | 'manual' | 'error'
+    const [manualText, setManualText] = useState('');
+    const ref = useRef(null);
+
+    const onClick = async () => {
+      setStatus('sharing');
+      const result = await shareReport(state);
+      if (result.ok && result.method === 'share') setStatus('shared');
+      else if (result.ok && result.method === 'clipboard') setStatus('copied');
+      else if (result.method === 'cancel') setStatus(null);
+      else { setManualText(result.text || formatTutorReportText(buildTutorReport(state))); setStatus('manual'); }
+    };
+
+    return (
+      <div className={primary ? 'bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-100' : ''}>
+        {primary && (
+          <div className="mb-3">
+            <h3 className="font-bold text-slate-800 mb-1">📤 回報給家教</h3>
+            <p className="text-sm text-slate-500">把這次的學習資料一鍵傳給家教，家教會根據你的弱點調整下一輪教材</p>
+          </div>
+        )}
+        <button onClick={onClick} className="w-full py-3.5 rounded-xl bg-emerald-600 active:scale-[0.98] hover:bg-emerald-700 text-white font-bold shadow-soft transition flex items-center justify-center gap-2">
+          {status === 'sharing' ? '處理中…' : '📋 一鍵匯出進度給家教'}
+        </button>
+
+        {status === 'shared' && (
+          <div className="mt-3 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg p-3 fade-up">
+            ✅ 已開啟分享選單。建議傳給「Claude」或複製到家教對話框中。
+          </div>
+        )}
+        {status === 'copied' && (
+          <div className="mt-3 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg p-3 fade-up">
+            ✅ 已複製到剪貼簿！打開家教對話貼上即可。
+          </div>
+        )}
+        {status === 'manual' && (
+          <div className="mt-3 fade-up">
+            <div className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-3 mb-2">
+              無法自動複製，請長按以下文字選取後複製：
+            </div>
+            <textarea ref={ref} readOnly value={manualText}
+              onFocus={e => e.target.select()}
+              className="w-full h-48 p-3 text-xs font-mono bg-slate-50 border border-slate-200 rounded-lg" />
+          </div>
+        )}
       </div>
     );
   }
