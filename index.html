@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="多益學院" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <title>多益衝刺學院 · TOEIC Mastery Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans TC', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50:  '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            },
+          },
+          boxShadow: {
+            soft: '0 4px 24px -8px rgba(79, 70, 229, 0.18)',
+            card: '0 10px 40px -12px rgba(15, 23, 42, 0.12)',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    html {
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html, body {
+      font-family: 'Inter', 'Noto Sans TC', system-ui, sans-serif;
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+      min-height: 100vh;
+      overscroll-behavior-y: contain;
+    }
+    body {
+      padding-top: env(safe-area-inset-top);
+    }
+    button, a, [role="button"] { touch-action: manipulation; }
+    button { -webkit-appearance: none; }
+    /* Prevent iOS auto-zoom on inputs (font >= 16px) — currently no inputs but future-proof */
+    input, select, textarea { font-size: 16px; }
+    /* Bottom sticky action bar that respects iPhone home indicator */
+    .sticky-actions {
+      position: sticky;
+      bottom: 0;
+      background: linear-gradient(180deg, rgba(248,250,252,0) 0%, rgba(248,250,252,0.95) 30%, rgba(248,250,252,1) 100%);
+      padding: 16px 0 calc(16px + env(safe-area-inset-bottom));
+      margin-top: 16px;
+      z-index: 20;
+    }
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+    .glass {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .ipa { font-family: 'Inter', sans-serif; letter-spacing: 0.02em; }
+    .flip-card { perspective: 1200px; }
+    .flip-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s cubic-bezier(.22,.84,.42,1);
+      transform-style: preserve-3d;
+    }
+    .flip-card.flipped .flip-inner { transform: rotateY(180deg); }
+    .flip-front, .flip-back {
+      position: absolute; inset: 0;
+      backface-visibility: hidden;
+      -webkit-backfaceVisibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 1.25rem;
+    }
+    .flip-back { transform: rotateY(180deg); }
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      70% { transform: scale(1.6); opacity: 0; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .pulse-ring::after {
+      content: ''; position: absolute; inset: 0;
+      border-radius: 9999px; border: 2px solid currentColor;
+      animation: pulseRing 1.4s ease-out infinite;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.32s ease-out both; }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 3px; }
+    .progress-bar { transition: width 0.6s cubic-bezier(.22,.84,.42,1); }
+    .option-btn { transition: all 0.18s ease; }
+    .option-btn:hover { transform: translateY(-1px); }
+    .shake { animation: shake 0.4s; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel" data-presets="react">
+  const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+  // ============================================================
+  //  CURRICULUM DATA — Day 1 fully implemented, Days 2-3 seeded
+  // ============================================================
+
+  const VOCABULARY = {
+    // Day 1 — Office basics
+    manager:      { word: 'manager',      ipa: '/ˈmænɪdʒɚ/',     pos: 'n.', zh: '經理', example: 'The manager is in a meeting.', exampleZh: '經理在開會。', day: 1 },
+    employee:     { word: 'employee',     ipa: '/ˌɛmplɔɪˈi/',     pos: 'n.', zh: '員工', example: 'She is a new employee.', exampleZh: '她是新員工。', day: 1 },
+    colleague:    { word: 'colleague',    ipa: '/ˈkɑliɡ/',        pos: 'n.', zh: '同事', example: 'My colleague helps me every day.', exampleZh: '我同事每天幫我。', day: 1 },
+    supervisor:   { word: 'supervisor',   ipa: '/ˈsupɚˌvaɪzɚ/',   pos: 'n.', zh: '主管', example: 'The supervisor checks our work.', exampleZh: '主管檢查我們的工作。', day: 1 },
+    client:       { word: 'client',       ipa: '/ˈklaɪənt/',      pos: 'n.', zh: '客戶', example: 'We have a meeting with the client.', exampleZh: '我們和客戶開會。', day: 1 },
+    office:       { word: 'office',       ipa: '/ˈɔfɪs/',         pos: 'n.', zh: '辦公室', example: 'The office is on the 5th floor.', exampleZh: '辦公室在五樓。', day: 1 },
+    department:   { word: 'department',   ipa: '/dɪˈpɑrtmənt/',   pos: 'n.', zh: '部門', example: 'He works in the sales department.', exampleZh: '他在業務部工作。', day: 1 },
+    document:     { word: 'document',     ipa: '/ˈdɑkjəmənt/',    pos: 'n.', zh: '文件', example: 'Please sign this document.', exampleZh: '請簽這份文件。', day: 1 },
+    report:       { word: 'report',       ipa: '/rɪˈpɔrt/',       pos: 'n.', zh: '報告', example: 'The report is due tomorrow.', exampleZh: '報告明天截止。', day: 1 },
+    presentation: { word: 'presentation', ipa: '/ˌprɛzənˈteʃən/', pos: 'n.', zh: '簡報', example: 'Her presentation is great.', exampleZh: '她的簡報很棒。', day: 1 },
+    meeting:      { word: 'meeting',      ipa: '/ˈmitɪŋ/',        pos: 'n.', zh: '會議', example: 'The meeting starts at 9.', exampleZh: '會議九點開始。', day: 1 },
+    schedule:     { word: 'schedule',     ipa: '/ˈskɛdʒul/',      pos: 'n./v.', zh: '行程；安排', example: 'My schedule is full today.', exampleZh: '我今天行程滿檔。', day: 1 },
+    deadline:     { word: 'deadline',     ipa: '/ˈdɛdˌlaɪn/',     pos: 'n.', zh: '截止日期', example: 'The deadline is Friday.', exampleZh: '期限是週五。', day: 1 },
+    conference:   { word: 'conference',   ipa: '/ˈkɑnfərəns/',    pos: 'n.', zh: '大型會議', example: 'The conference is in Tokyo.', exampleZh: '大會在東京舉行。', day: 1 },
+    project:      { word: 'project',      ipa: '/ˈprɑdʒɛkt/',     pos: 'n.', zh: '專案', example: 'This project is important.', exampleZh: '這個專案很重要。', day: 1 },
+    attend:       { word: 'attend',       ipa: '/əˈtɛnd/',        pos: 'v.', zh: '參加', example: 'I attend the meeting on Monday.', exampleZh: '我週一參加會議。', day: 1 },
+    confirm:      { word: 'confirm',      ipa: '/kənˈfɝm/',       pos: 'v.', zh: '確認', example: 'Please confirm your email.', exampleZh: '請確認你的信箱。', day: 1 },
+    postpone:     { word: 'postpone',     ipa: '/poˈspon/',       pos: 'v.', zh: '延後', example: 'We postpone the meeting.', exampleZh: '我們延後會議。', day: 1 },
+    arrange:      { word: 'arrange',      ipa: '/əˈrendʒ/',       pos: 'v.', zh: '安排', example: 'She arranges the schedule.', exampleZh: '她安排行程。', day: 1 },
+    submit:       { word: 'submit',       ipa: '/səbˈmɪt/',       pos: 'v.', zh: '提交', example: 'He submits the report.', exampleZh: '他提交報告。', day: 1 },
+
+    // Day 2 — Time & Past actions
+    yesterday:    { word: 'yesterday',    ipa: '/ˈjɛstɚˌde/',     pos: 'adv.', zh: '昨天', example: 'I attended the meeting yesterday.', exampleZh: '我昨天去開會。', day: 2 },
+    finish:       { word: 'finish',       ipa: '/ˈfɪnɪʃ/',        pos: 'v.', zh: '完成', example: 'She finished the report on time.', exampleZh: '她準時完成報告。', day: 2 },
+    receive:      { word: 'receive',      ipa: '/rɪˈsiv/',        pos: 'v.', zh: '收到', example: 'I received your email this morning.', exampleZh: '我今早收到你的信。', day: 2 },
+    contact:      { word: 'contact',      ipa: '/ˈkɑntækt/',      pos: 'v./n.', zh: '聯絡', example: 'Please contact our supplier.', exampleZh: '請聯絡供應商。', day: 2 },
+    customer:     { word: 'customer',     ipa: '/ˈkʌstəmɚ/',      pos: 'n.', zh: '顧客', example: 'The customer is waiting outside.', exampleZh: '顧客在外面等。', day: 2 },
+    invoice:      { word: 'invoice',      ipa: '/ˈɪnvɔɪs/',       pos: 'n.', zh: '發票/帳單', example: 'Please send the invoice.', exampleZh: '請寄發票。', day: 2 },
+    payment:      { word: 'payment',      ipa: '/ˈpemənt/',       pos: 'n.', zh: '付款', example: 'We received the payment.', exampleZh: '我們收到款項了。', day: 2 },
+    purchase:     { word: 'purchase',     ipa: '/ˈpɝtʃəs/',       pos: 'v./n.', zh: '購買', example: 'She purchased a new printer.', exampleZh: '她買了新印表機。', day: 2 },
+    deliver:      { word: 'deliver',      ipa: '/dɪˈlɪvɚ/',       pos: 'v.', zh: '運送', example: 'They delivered the package yesterday.', exampleZh: '他們昨天送貨。', day: 2 },
+    order:        { word: 'order',        ipa: '/ˈɔrdɚ/',         pos: 'n./v.', zh: '訂單；訂購', example: 'I placed the order this morning.', exampleZh: '我今早下單了。', day: 2 },
+  };
+
+  const GRAMMAR_LESSONS = {
+    'be-verb': {
+      id: 'be-verb',
+      title: 'be 動詞 (am / is / are)',
+      day: 1,
+      summary: 'be 動詞要看「主詞」決定形式：我 am、單 is、你/們 are',
+      sections: [
+        {
+          heading: '基本規則',
+          html: `
+            <p class="mb-3">be 動詞用來描述「<b>是什麼</b>」「<b>在哪裡</b>」「<b>狀態如何</b>」。形式由主詞決定：</p>
+            <table class="w-full text-sm border border-slate-200 rounded-lg overflow-hidden mb-3">
+              <thead class="bg-slate-50 text-slate-600">
+                <tr><th class="p-2 text-left">主詞</th><th class="p-2 text-left">be 動詞</th><th class="p-2 text-left">縮寫</th></tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr><td class="p-2"><code>I</code></td><td class="p-2"><b>am</b></td><td class="p-2">I'm</td></tr>
+                <tr><td class="p-2"><code>He / She / It</code> · 單一人事物</td><td class="p-2"><b>is</b></td><td class="p-2">He's / She's / It's</td></tr>
+                <tr><td class="p-2"><code>You / We / They</code> · 多個人事物</td><td class="p-2"><b>are</b></td><td class="p-2">You're / We're / They're</td></tr>
+              </tbody>
+            </table>
+            <div class="bg-brand-50 border-l-4 border-brand-500 p-3 rounded">
+              <b>記憶口訣：</b>「我 <code>am</code>，單 <code>is</code>，你/們 <code>are</code>」
+            </div>
+          `,
+        },
+        {
+          heading: '範例句',
+          html: `
+            <ul class="space-y-2">
+              <li>• I <b class="text-brand-600">am</b> an employee.（我是員工）</li>
+              <li>• She <b class="text-brand-600">is</b> the manager.（她是經理）</li>
+              <li>• The report <b class="text-brand-600">is</b> ready.（報告好了）</li>
+              <li>• We <b class="text-brand-600">are</b> colleagues.（我們是同事）</li>
+              <li>• The documents <b class="text-brand-600">are</b> on the desk.（文件在桌上）</li>
+            </ul>
+          `,
+        },
+      ],
+    },
+    'present-simple-3rd': {
+      id: 'present-simple-3rd',
+      title: '一般動詞現在式 (第三人稱單數 +s/es)',
+      day: 1,
+      summary: '當主詞是 He/She/It 或單一人事物，動詞要 +s 或 +es',
+      sections: [
+        {
+          heading: '基本規則',
+          html: `
+            <table class="w-full text-sm border border-slate-200 rounded-lg overflow-hidden mb-3">
+              <thead class="bg-slate-50 text-slate-600">
+                <tr><th class="p-2 text-left">主詞</th><th class="p-2 text-left">動詞變化</th><th class="p-2 text-left">範例</th></tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr><td class="p-2">I / You / We / They</td><td class="p-2">原形</td><td class="p-2">I <b>work</b> in the office.</td></tr>
+                <tr><td class="p-2">He / She / It / 單一人事物</td><td class="p-2"><b>+ s/es</b></td><td class="p-2">She <b>works</b> in the office.</td></tr>
+              </tbody>
+            </table>
+          `,
+        },
+        {
+          heading: '動詞變化規則',
+          html: `
+            <ul class="space-y-2 text-sm">
+              <li>① 大部分直接 <b>+ s</b>：work → works, attend → attends, submit → submits</li>
+              <li>② 字尾 s, sh, ch, x, o：<b>+ es</b>：go → goes, watch → watches</li>
+              <li>③ 字尾「子音 + y」：去 y <b>+ ies</b>：study → studies, try → tries</li>
+              <li>④ 不規則：have → <b>has</b></li>
+            </ul>
+          `,
+        },
+        {
+          heading: '⚠️ be 動詞 vs 一般動詞 不可同時出現',
+          html: `
+            <div class="space-y-2 text-sm">
+              <div class="bg-rose-50 border border-rose-200 p-3 rounded">❌ She <s>is works</s> in the office.</div>
+              <div class="bg-emerald-50 border border-emerald-200 p-3 rounded">✅ She <b>works</b> in the office.</div>
+              <div class="bg-emerald-50 border border-emerald-200 p-3 rounded">✅ She <b>is</b> an employee.</div>
+            </div>
+          `,
+        },
+      ],
+    },
+    'past-simple': {
+      id: 'past-simple',
+      title: '簡單過去式 (Past Simple)',
+      day: 2,
+      summary: '描述「已經發生」的動作。規則動詞 +ed，不規則動詞要背。',
+      sections: [
+        {
+          heading: '基本規則',
+          html: `
+            <p class="mb-3">不論主詞是誰，動詞通通變過去式（不需要 +s）。</p>
+            <table class="w-full text-sm border border-slate-200 rounded-lg overflow-hidden mb-3">
+              <thead class="bg-slate-50 text-slate-600">
+                <tr><th class="p-2 text-left">類型</th><th class="p-2 text-left">變化方式</th><th class="p-2 text-left">範例</th></tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr><td class="p-2">規則動詞</td><td class="p-2"><b>+ ed</b></td><td class="p-2">work → worked, attend → attended</td></tr>
+                <tr><td class="p-2">字尾 e</td><td class="p-2"><b>+ d</b></td><td class="p-2">arrange → arranged</td></tr>
+                <tr><td class="p-2">子音 + y</td><td class="p-2">去 y <b>+ ied</b></td><td class="p-2">study → studied</td></tr>
+                <tr><td class="p-2">be 動詞</td><td class="p-2">am/is → <b>was</b>, are → <b>were</b></td><td class="p-2">She was a manager.</td></tr>
+                <tr><td class="p-2">不規則</td><td class="p-2">需個別記</td><td class="p-2">go → went, have → had</td></tr>
+              </tbody>
+            </table>
+          `,
+        },
+        {
+          heading: '常見時間提示語',
+          html: `
+            <p class="mb-2 text-sm">看到這些字 → 通常用過去式：</p>
+            <div class="flex flex-wrap gap-2">
+              ${['yesterday','last week','last month','last year','two days ago','in 2020','this morning (已過)'].map(s => `<span class="px-3 py-1 bg-brand-50 text-brand-700 rounded-full text-sm">${s}</span>`).join('')}
+            </div>
+          `,
+        },
+      ],
+    },
+  };
+
+  const QUESTIONS = [
+    // Day 1 — be verb / 一般動詞現在式 (15 questions)
+    { id: 'q1',  day: 1, topic: 'be-verb',           stem: 'The new employee ______ very hardworking.', options: ['am','is','are','be'], answer: 1, explain: '主詞 The new employee 是「單一人」→ 用 is。', vocab: ['employee'] },
+    { id: 'q2',  day: 1, topic: 'present-simple-3rd', stem: 'Mr. Chen ______ the sales report every Monday.', options: ['submit','submits','submitting','to submit'], answer: 1, explain: '主詞 Mr. Chen 是第三人稱單數 → 動詞 +s。', vocab: ['submit','report'] },
+    { id: 'q3',  day: 1, topic: 'vocab',              stem: 'The ______ will check our work tomorrow.', options: ['supervisor','document','deadline','schedule'], answer: 0, explain: '「主管」會檢查工作，語意符合。', vocab: ['supervisor'] },
+    { id: 'q4',  day: 1, topic: 'be-verb',           stem: 'Lisa and her colleagues ______ in the meeting room.', options: ['is','am','are','be'], answer: 2, explain: '主詞 Lisa and her colleagues 是複數 → 用 are。', vocab: ['colleague'] },
+    { id: 'q5',  day: 1, topic: 'present-simple-3rd', stem: 'Please ______ your attendance by Friday.', options: ['confirm','confirms','confirming','to confirm'], answer: 0, explain: 'Please 後面要接動詞原形。', vocab: ['confirm'] },
+    { id: 'q6',  day: 1, topic: 'vocab',              stem: 'The ______ for the project is next Monday.', options: ['office','deadline','employee','manager'], answer: 1, explain: '「專案的截止日期」。', vocab: ['deadline','project'] },
+    { id: 'q7',  day: 1, topic: 'present-simple-3rd', stem: 'She ______ to the conference in Tokyo every year.', options: ['go','going','goes','gone'], answer: 2, explain: '主詞 She → go 字尾是 o，+ es。', vocab: ['conference'] },
+    { id: 'q8',  day: 1, topic: 'vocab',              stem: 'The marketing ______ has twenty employees.', options: ['document','presentation','department','deadline'], answer: 2, explain: '「行銷部門」。', vocab: ['department','employee'] },
+    { id: 'q9',  day: 1, topic: 'be-verb',           stem: 'I ______ a new employee in the finance department.', options: ['am','is','are','be'], answer: 0, explain: '主詞 I → 用 am。', vocab: ['employee','department'] },
+    { id: 'q10', day: 1, topic: 'present-simple-3rd', stem: 'The manager ______ the meeting because of the emergency.', options: ['postpone','postpones','postponing','to postpone'], answer: 1, explain: '主詞 The manager 是單數 → 動詞 +s。', vocab: ['postpone','manager','meeting'] },
+    { id: 'q11', day: 1, topic: 'vocab',              stem: 'Our ______ wants to see the report this afternoon.', options: ['client','office','schedule','project'], answer: 0, explain: '「客戶想看報告」。', vocab: ['client','report'] },
+    { id: 'q12', day: 1, topic: 'be-verb',           stem: 'We ______ colleagues from the same department.', options: ['is','am','are','has'], answer: 2, explain: '主詞 We → 用 are。', vocab: ['colleague','department'] },
+    { id: 'q13', day: 1, topic: 'present-simple-3rd', stem: 'Mr. Wang ______ a very busy schedule today.', options: ['have','has','having','is have'], answer: 1, explain: '主詞 Mr. Wang 單數 → have 變 has。', vocab: ['schedule'] },
+    { id: 'q14', day: 1, topic: 'present-simple-3rd', stem: 'She ______ the team meeting every Tuesday morning.', options: ['attend','attends','attending','to attend'], answer: 1, explain: '主詞 She → 動詞 +s。', vocab: ['attend','meeting'] },
+    { id: 'q15', day: 1, topic: 'vocab',              stem: 'The ______ is on the third floor of the building.', options: ['attend','submit','office','confirm'], answer: 2, explain: '需要名詞當主詞補語，「辦公室在三樓」。', vocab: ['office'] },
+
+    // Day 2 — Past simple / new vocab (15)
+    { id: 'q16', day: 2, topic: 'past-simple',  stem: 'I ______ the meeting yesterday afternoon.', options: ['attend','attends','attended','attending'], answer: 2, explain: 'yesterday → 過去式，attend → attended。', vocab: ['attend'] },
+    { id: 'q17', day: 2, topic: 'past-simple',  stem: 'She ______ the report two days ago.', options: ['submit','submits','submitted','submitting'], answer: 2, explain: 'two days ago → 過去式。', vocab: ['submit','report'] },
+    { id: 'q18', day: 2, topic: 'past-simple',  stem: 'The customers ______ the package last Friday.', options: ['receive','receives','received','receiving'], answer: 2, explain: 'last Friday → 過去式。', vocab: ['receive','customer'] },
+    { id: 'q19', day: 2, topic: 'vocab',         stem: 'Please send the ______ to the accounting department.', options: ['invoice','meeting','project','schedule'], answer: 0, explain: '「請把發票寄到會計部」。', vocab: ['invoice','department'] },
+    { id: 'q20', day: 2, topic: 'past-simple',  stem: 'They ______ the new printer last week.', options: ['purchase','purchases','purchased','purchasing'], answer: 2, explain: 'last week → 過去式。', vocab: ['purchase'] },
+    { id: 'q21', day: 2, topic: 'past-simple',  stem: 'The supervisor ______ in the office yesterday.', options: ['is','was','were','are'], answer: 1, explain: 'yesterday + 單數主詞 → was。', vocab: ['supervisor'] },
+    { id: 'q22', day: 2, topic: 'past-simple',  stem: 'We ______ at the conference last month.', options: ['is','was','were','are'], answer: 2, explain: 'last month + We → were。', vocab: ['conference'] },
+    { id: 'q23', day: 2, topic: 'vocab',         stem: 'We received your ______ this morning. Thank you!', options: ['payment','manager','office','colleague'], answer: 0, explain: '「我們今早收到你的款項」。', vocab: ['payment','receive'] },
+    { id: 'q24', day: 2, topic: 'past-simple',  stem: 'Our team ______ the project ahead of schedule.', options: ['finish','finishes','finished','finishing'], answer: 2, explain: '描述完成的動作，過去式 finished。', vocab: ['finish','project','schedule'] },
+    { id: 'q25', day: 2, topic: 'vocab',         stem: 'Please ______ our supplier about the delay.', options: ['contact','contacts','contacting','contacted'], answer: 0, explain: 'Please + 動詞原形。「聯絡供應商」。', vocab: ['contact'] },
+    { id: 'q26', day: 2, topic: 'past-simple',  stem: 'The delivery ______ at 3 p.m. yesterday.', options: ['arrive','arrives','arrived','arriving'], answer: 2, explain: 'yesterday → 過去式。', vocab: ['deliver'] },
+    { id: 'q27', day: 2, topic: 'vocab',         stem: 'I placed an ______ for 50 boxes of paper.', options: ['order','office','employee','manager'], answer: 0, explain: '「下訂單」place an order。', vocab: ['order'] },
+    { id: 'q28', day: 2, topic: 'past-simple',  stem: 'Mr. Lin ______ the document last night.', options: ['sign','signs','signed','signing'], answer: 2, explain: 'last night → 過去式。', vocab: ['document'] },
+    { id: 'q29', day: 2, topic: 'past-simple',  stem: 'The clients ______ very happy with our service.', options: ['is','was','were','are'], answer: 2, explain: 'clients 複數 + 過去語境 → were。', vocab: ['client'] },
+    { id: 'q30', day: 2, topic: 'vocab',         stem: 'Our biggest ______ is calling about the new product.', options: ['customer','office','schedule','document'], answer: 0, explain: '「最大的客戶」。', vocab: ['customer'] },
+
+    // Day 3 — review + integration
+    { id: 'q31', day: 3, topic: 'mixed',         stem: 'The manager ______ all the documents tomorrow.', options: ['will sign','signs','signed','sign'], answer: 0, explain: 'tomorrow → 未來時間 → will + 原形。', vocab: ['document','manager'] },
+    { id: 'q32', day: 3, topic: 'mixed',         stem: 'We ______ the conference next Monday in Taipei.', options: ['attended','attends','will attend','attend'], answer: 2, explain: 'next Monday → 未來。', vocab: ['attend','conference'] },
+    { id: 'q33', day: 3, topic: 'mixed',         stem: 'She ______ the project last week on schedule.', options: ['finishes','finished','finishing','finish'], answer: 1, explain: 'last week → 過去。', vocab: ['finish','project','schedule'] },
+    { id: 'q34', day: 3, topic: 'vocab',         stem: 'The supervisor needs to ______ the meeting time.', options: ['arrange','arranges','arranging','arranged'], answer: 0, explain: 'to + 動詞原形。', vocab: ['arrange','meeting','supervisor'] },
+    { id: 'q35', day: 3, topic: 'mixed',         stem: 'Our department ______ ten employees right now.', options: ['have','has','had','having'], answer: 1, explain: 'department 單數 + 現在式 → has。', vocab: ['department','employee'] },
+  ];
+
+  // Maps each day to its lesson modules
+  const CURRICULUM = {
+    1: {
+      day: 1,
+      title: 'Day 1 · 職場核心字彙與句子骨架',
+      vocab: ['manager','employee','colleague','supervisor','client','office','department','document','report','presentation','meeting','schedule','deadline','conference','project','attend','confirm','postpone','arrange','submit'],
+      grammar: ['be-verb', 'present-simple-3rd'],
+      questions: ['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10','q11','q12','q13','q14','q15'],
+    },
+    2: {
+      day: 2,
+      title: 'Day 2 · 描述昨天 (簡單過去式)',
+      vocab: ['yesterday','finish','receive','contact','customer','invoice','payment','purchase','deliver','order'],
+      grammar: ['past-simple'],
+      questions: ['q16','q17','q18','q19','q20','q21','q22','q23','q24','q25','q26','q27','q28','q29','q30'],
+    },
+    3: {
+      day: 3,
+      title: 'Day 3 · 時態統整與職場句綜合',
+      vocab: [],
+      grammar: [],
+      questions: ['q31','q32','q33','q34','q35'],
+    },
+  };
+
+  // ============================================================
+  //  STATE / STORAGE
+  // ============================================================
+
+  const STORAGE_KEY = 'toeic-academy-state-v1';
+
+  function defaultState() {
+    return {
+      startDate: new Date().toISOString().slice(0, 10),
+      currentDay: 1,
+      streak: 0,
+      lastStudyDate: null,
+      // per-word mastery: 0 (new) ... 5 (mastered)
+      vocabStats: {},   // { word: { mastery, seen, correct, wrong, lastSeen } }
+      // per-question history
+      questionStats: {}, // { qId: { attempts, correct, wrong, lastSeen } }
+      // per-grammar topic confidence
+      topicStats: {},    // { topicId: { correct, wrong, confidence } }
+      // questions queued for review (because user got them wrong)
+      reviewQueue: [],   // [qId]
+      // history of completed sessions
+      history: [],       // [{ date, day, correct, total, durationSec }]
+    };
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      const parsed = JSON.parse(raw);
+      return { ...defaultState(), ...parsed };
+    } catch (e) {
+      return defaultState();
+    }
+  }
+
+  function saveState(state) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  // ============================================================
+  //  ADAPTIVE ENGINE — pull review items into today's session
+  // ============================================================
+
+  function buildTodaySession(state, day) {
+    const plan = CURRICULUM[day] || CURRICULUM[1];
+
+    // Vocab: today's new words + 5 weakest old words (mastery < 4)
+    const newVocab = plan.vocab.map(w => VOCABULARY[w]).filter(Boolean);
+    const olderWeakWords = Object.entries(state.vocabStats)
+      .filter(([w, s]) => !plan.vocab.includes(w) && (s.mastery || 0) < 4)
+      .sort((a, b) => (a[1].mastery || 0) - (b[1].mastery || 0))
+      .slice(0, 5)
+      .map(([w]) => VOCABULARY[w])
+      .filter(Boolean);
+    const vocabList = [...newVocab, ...olderWeakWords];
+
+    // Questions: today's planned + up to 5 from review queue (wrong before)
+    const planned = plan.questions.map(qid => QUESTIONS.find(q => q.id === qid)).filter(Boolean);
+    const reviewIds = Array.from(new Set(state.reviewQueue || [])).slice(0, 5);
+    const reviewQs = reviewIds
+      .map(qid => QUESTIONS.find(q => q.id === qid))
+      .filter(Boolean)
+      .filter(q => !planned.find(p => p.id === q.id)); // dedupe
+    const questions = [...planned, ...reviewQs];
+
+    return {
+      day,
+      title: plan.title,
+      grammar: plan.grammar.map(g => GRAMMAR_LESSONS[g]).filter(Boolean),
+      vocab: vocabList,
+      reviewVocabCount: olderWeakWords.length,
+      questions,
+      reviewQuestionCount: reviewQs.length,
+    };
+  }
+
+  function applyAnswerOutcome(state, q, isCorrect) {
+    const next = { ...state };
+    next.questionStats = { ...state.questionStats };
+    next.vocabStats = { ...state.vocabStats };
+    next.topicStats = { ...state.topicStats };
+    next.reviewQueue = [...(state.reviewQueue || [])];
+
+    // question stats
+    const qs = next.questionStats[q.id] || { attempts: 0, correct: 0, wrong: 0, lastSeen: null };
+    qs.attempts += 1;
+    if (isCorrect) qs.correct += 1; else qs.wrong += 1;
+    qs.lastSeen = new Date().toISOString();
+    next.questionStats[q.id] = qs;
+
+    // topic stats
+    const ts = next.topicStats[q.topic] || { correct: 0, wrong: 0, confidence: 50 };
+    if (isCorrect) {
+      ts.correct += 1;
+      ts.confidence = Math.min(100, ts.confidence + 6);
+    } else {
+      ts.wrong += 1;
+      ts.confidence = Math.max(0, ts.confidence - 10);
+    }
+    next.topicStats[q.topic] = ts;
+
+    // vocab stats — bump related words
+    (q.vocab || []).forEach(w => {
+      const v = next.vocabStats[w] || { mastery: 0, seen: 0, correct: 0, wrong: 0, lastSeen: null };
+      v.seen += 1;
+      v.lastSeen = new Date().toISOString();
+      if (isCorrect) {
+        v.correct += 1;
+        v.mastery = Math.min(5, v.mastery + 1);
+      } else {
+        v.wrong += 1;
+        v.mastery = Math.max(0, v.mastery - 1);
+      }
+      next.vocabStats[w] = v;
+    });
+
+    // review queue
+    if (!isCorrect) {
+      if (!next.reviewQueue.includes(q.id)) next.reviewQueue.push(q.id);
+    } else {
+      // remove from queue once answered correctly
+      next.reviewQueue = next.reviewQueue.filter(id => id !== q.id);
+    }
+
+    return next;
+  }
+
+  function recordSessionComplete(state, day, correct, total) {
+    const today = new Date().toISOString().slice(0, 10);
+    const last = state.lastStudyDate;
+    let streak = state.streak || 0;
+    if (last === today) {
+      // already counted today, no change
+    } else {
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      streak = last === yesterday ? streak + 1 : 1;
+    }
+    return {
+      ...state,
+      lastStudyDate: today,
+      streak,
+      currentDay: Math.max(state.currentDay, day + 1),
+      history: [...state.history, { date: today, day, correct, total, ts: Date.now() }],
+    };
+  }
+
+  // ============================================================
+  //  PRONUNCIATION (Web Speech API)
+  // ============================================================
+
+  function speak(text) {
+    try {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US';
+      u.rate = 0.9;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    } catch (e) { /* ignore */ }
+  }
+
+  // ============================================================
+  //  COMPONENTS
+  // ============================================================
+
+  function Header({ state, onReset, onGoHome }) {
+    return (
+      <header className="glass sticky top-0 z-30 border-b border-slate-200/60">
+        <div className="max-w-5xl mx-auto px-4 sm:px-5 py-3 flex items-center justify-between gap-2">
+          <button onClick={onGoHome} className="flex items-center gap-2 sm:gap-3 group active:scale-95 transition">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 grid place-items-center text-white font-black shadow-soft">
+              <span className="text-base sm:text-lg">多</span>
+            </div>
+            <div className="text-left">
+              <div className="font-bold text-slate-800 group-hover:text-brand-600 transition text-sm sm:text-base leading-tight">多益衝刺學院</div>
+              <div className="text-[10px] sm:text-xs text-slate-500 leading-tight hidden sm:block">TOEIC Mastery Academy</div>
+            </div>
+          </button>
+          <div className="flex items-center gap-1.5 sm:gap-2 text-sm">
+            <div className="px-2.5 sm:px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
+              <span className="text-sm">🔥</span><span className="font-semibold">{state.streak}</span><span className="text-amber-600/70 hidden sm:inline">天連續</span>
+            </div>
+            <div className="px-2.5 sm:px-3 py-1.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200 flex items-center gap-1">
+              <span className="text-sm">📅</span><span className="font-semibold">Day {state.currentDay}</span>
+            </div>
+            <button onClick={onReset} title="清除進度，重新開始" className="text-slate-400 active:text-rose-500 hover:text-rose-500 transition px-2 py-2 text-xs min-w-[44px] min-h-[36px]">重設</button>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  function Dashboard({ state, onStart, todaySession }) {
+    const masteredWords = Object.values(state.vocabStats).filter(v => (v.mastery || 0) >= 4).length;
+    const totalSeen = Object.values(state.vocabStats).length;
+    const totalCorrect = state.history.reduce((s, h) => s + h.correct, 0);
+    const totalAttempts = state.history.reduce((s, h) => s + h.total, 0);
+    const accuracy = totalAttempts ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
+
+    const weakTopics = Object.entries(state.topicStats)
+      .filter(([_, s]) => s.confidence < 70)
+      .sort((a, b) => a[1].confidence - b[1].confidence)
+      .slice(0, 3);
+
+    const goal500 = '2026-06-30';
+    const goal800 = '2026-12-15';
+    const today = new Date();
+    const daysTo500 = Math.ceil((new Date(goal500) - today) / 86400000);
+    const daysTo800 = Math.ceil((new Date(goal800) - today) / 86400000);
+
+    return (
+      <div className="max-w-5xl mx-auto px-4 sm:px-5 py-5 sm:py-8 space-y-4 sm:space-y-6 fade-up safe-bottom">
+        {/* Hero */}
+        <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-brand-600 via-brand-700 to-indigo-800 text-white p-6 sm:p-8 shadow-card relative overflow-hidden">
+          <div className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/10 blur-2xl"></div>
+          <div className="absolute -left-8 -bottom-12 w-56 h-56 rounded-full bg-amber-300/20 blur-2xl"></div>
+          <div className="relative">
+            <div className="text-brand-200 text-xs sm:text-sm font-medium mb-1">今日課程</div>
+            <h1 className="text-2xl sm:text-4xl font-black mb-2 leading-tight">{todaySession.title}</h1>
+            <p className="text-brand-100 text-sm sm:text-base mb-5 sm:mb-6 max-w-xl">
+              {todaySession.vocab.length} 個單字 · {todaySession.grammar.length} 個文法 · {todaySession.questions.length} 題練習
+              {todaySession.reviewQuestionCount > 0 && (
+                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full bg-amber-300/20 text-amber-100 text-xs font-medium">含 {todaySession.reviewQuestionCount} 題複習</span>
+              )}
+            </p>
+            <button onClick={onStart} className="group flex sm:inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-white text-brand-700 px-6 py-3.5 rounded-xl font-bold shadow-lg hover:shadow-xl active:scale-[0.98] transition">
+              開始 Day {todaySession.day} 學習
+              <span className="group-hover:translate-x-1 transition">→</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <StatCard label="連續學習" value={state.streak} unit="天" icon="🔥" color="amber" />
+          <StatCard label="累計準確率" value={accuracy} unit="%" icon="🎯" color="emerald" />
+          <StatCard label="已掌握單字" value={masteredWords} unit={`/ ${totalSeen}`} icon="📘" color="brand" />
+          <StatCard label="完成課程" value={state.history.length} unit="堂" icon="✨" color="violet" />
+        </div>
+
+        {/* Goals */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          <GoalCard title="6 月目標 · 500 分" days={daysTo500} from="from-emerald-500" to="to-emerald-600" />
+          <GoalCard title="12 月目標 · 800 分" days={daysTo800} from="from-rose-500" to="to-rose-600" />
+        </div>
+
+        {/* Weak points */}
+        {weakTopics.length > 0 && (
+          <div className="bg-white rounded-2xl p-6 shadow-card border border-slate-100">
+            <h3 className="font-bold text-slate-800 mb-1">📍 你需要加強的觀念</h3>
+            <p className="text-sm text-slate-500 mb-4">這些題型會自動加入接下來的練習中</p>
+            <div className="space-y-3">
+              {weakTopics.map(([topic, s]) => (
+                <div key={topic} className="flex items-center gap-3">
+                  <div className="font-medium text-slate-700 w-40 truncate">
+                    {GRAMMAR_LESSONS[topic]?.title || (topic === 'vocab' ? '單字辨識' : topic === 'mixed' ? '時態綜合' : topic)}
+                  </div>
+                  <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div className={`h-full progress-bar ${s.confidence < 40 ? 'bg-rose-500' : s.confidence < 70 ? 'bg-amber-500' : 'bg-emerald-500'}`} style={{ width: `${s.confidence}%` }}></div>
+                  </div>
+                  <div className="text-sm font-semibold text-slate-600 w-12 text-right">{s.confidence}%</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Roadmap */}
+        <div className="bg-white rounded-2xl p-6 shadow-card border border-slate-100">
+          <h3 className="font-bold text-slate-800 mb-4">🗺️ 學習地圖</h3>
+          <div className="space-y-2">
+            {Object.values(CURRICULUM).map(c => {
+              const done = state.history.find(h => h.day === c.day);
+              const isToday = c.day === todaySession.day;
+              return (
+                <div key={c.day} className={`flex items-center gap-3 p-3 rounded-lg border ${isToday ? 'border-brand-300 bg-brand-50' : done ? 'border-emerald-200 bg-emerald-50/40' : 'border-slate-100'}`}>
+                  <div className={`w-9 h-9 rounded-full grid place-items-center font-bold text-sm ${done ? 'bg-emerald-500 text-white' : isToday ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                    {done ? '✓' : c.day}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-slate-800">{c.title}</div>
+                    <div className="text-xs text-slate-500">{c.vocab.length} 字 · {c.grammar.length} 文法 · {c.questions.length} 題</div>
+                  </div>
+                  {done && <div className="text-xs text-emerald-700 font-medium">{Math.round(done.correct/done.total*100)}% 正確</div>}
+                  {isToday && !done && <div className="text-xs text-brand-700 font-medium">今天的課</div>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function StatCard({ label, value, unit, icon, color }) {
+    const colors = {
+      amber: 'from-amber-50 to-orange-50 border-amber-200 text-amber-900',
+      emerald: 'from-emerald-50 to-green-50 border-emerald-200 text-emerald-900',
+      brand: 'from-brand-50 to-indigo-50 border-brand-200 text-brand-900',
+      violet: 'from-violet-50 to-purple-50 border-violet-200 text-violet-900',
+    };
+    return (
+      <div className={`rounded-2xl p-4 bg-gradient-to-br ${colors[color]} border shadow-sm`}>
+        <div className="flex items-center gap-2 text-xs font-medium opacity-80 mb-1">
+          <span>{icon}</span>
+          <span>{label}</span>
+        </div>
+        <div className="text-2xl font-black">
+          {value}<span className="text-sm font-medium opacity-70 ml-1">{unit}</span>
+        </div>
+      </div>
+    );
+  }
+
+  function GoalCard({ title, days, from, to }) {
+    return (
+      <div className={`rounded-2xl p-5 bg-gradient-to-br ${from} ${to} text-white shadow-card`}>
+        <div className="text-sm opacity-90 mb-1">{title}</div>
+        <div className="text-3xl font-black">還剩 {days} 天</div>
+      </div>
+    );
+  }
+
+  // ----------- Lesson Flow -----------
+
+  const STEPS = ['intro', 'vocab', 'grammar', 'practice', 'result'];
+
+  function LessonFlow({ session, onComplete, onExit, state, setState }) {
+    const [stepIdx, setStepIdx] = useState(0);
+    const step = STEPS[stepIdx];
+
+    const next = () => setStepIdx(i => Math.min(STEPS.length - 1, i + 1));
+    const prev = () => setStepIdx(i => Math.max(0, i - 1));
+
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-5 py-4 sm:py-6 fade-up">
+        <ProgressSteps step={step} />
+
+        {step === 'intro' && <IntroStep session={session} onNext={next} onExit={onExit} />}
+        {step === 'vocab' && <VocabStep session={session} onNext={next} />}
+        {step === 'grammar' && <GrammarStep session={session} onNext={next} />}
+        {step === 'practice' && (
+          <PracticeStep session={session} state={state} setState={setState}
+            onComplete={(result) => { next(); onComplete(result); }} />
+        )}
+        {step === 'result' && <ResultStep session={session} state={state} onExit={onExit} />}
+      </div>
+    );
+  }
+
+  function ProgressSteps({ step }) {
+    const labels = [
+      { id: 'intro',    label: '簡介' },
+      { id: 'vocab',    label: '單字' },
+      { id: 'grammar',  label: '文法' },
+      { id: 'practice', label: '練習' },
+      { id: 'result',   label: '回饋' },
+    ];
+    const idx = labels.findIndex(l => l.id === step);
+    return (
+      <div className="mb-5 sm:mb-8">
+        <div className="flex items-center justify-between mb-2">
+          {labels.map((l, i) => (
+            <div key={l.id} className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+              <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full grid place-items-center text-[10px] sm:text-xs font-bold flex-shrink-0 ${i < idx ? 'bg-emerald-500 text-white' : i === idx ? 'bg-brand-600 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                {i < idx ? '✓' : i + 1}
+              </div>
+              <div className={`text-[11px] sm:text-sm font-medium ${i === idx ? 'text-brand-700' : 'text-slate-400'} ${i === idx ? 'inline' : 'hidden sm:inline'}`}>{l.label}</div>
+              {i < labels.length - 1 && <div className={`flex-1 h-0.5 ${i < idx ? 'bg-emerald-300' : 'bg-slate-200'}`}></div>}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  function IntroStep({ session, onNext, onExit }) {
+    return (
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-card border border-slate-100 p-5 sm:p-8">
+        <h2 className="text-xl sm:text-2xl font-black text-slate-800 mb-2 leading-tight">{session.title}</h2>
+        <p className="text-slate-500 text-sm sm:text-base mb-5 sm:mb-6">今天的學習結構（依你的學習習慣設計）：</p>
+        <div className="grid sm:grid-cols-3 gap-3 sm:gap-4 mb-5 sm:mb-6">
+          <FlowCard num="01" title="單字輸入" desc={`${session.vocab.length} 個重點字（含 ${session.reviewVocabCount || 0} 個複習字）`} />
+          <FlowCard num="02" title="文法理解" desc={`${session.grammar.length} 個文法觀念講解`} />
+          <FlowCard num="03" title="即時練習" desc={`${session.questions.length} 題演練 + 詳解`} />
+        </div>
+        <div className="bg-brand-50 border border-brand-200 rounded-xl p-3 sm:p-4 text-xs sm:text-sm text-brand-900 mb-5 sm:mb-6 leading-relaxed">
+          💡 <b>適應性學習提醒：</b>系統會記錄你答錯的題目，並把對應的單字與文法在後續課程中重新出現，直到你掌握為止。
+        </div>
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-2">
+          <button onClick={onExit} className="px-5 py-3 text-slate-500 active:text-slate-800 hover:text-slate-800 transition text-sm">← 返回首頁</button>
+          <button onClick={onNext} className="px-6 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold shadow-soft transition">開始學習 →</button>
+        </div>
+      </div>
+    );
+  }
+
+  function FlowCard({ num, title, desc }) {
+    return (
+      <div className="rounded-2xl p-5 bg-gradient-to-br from-slate-50 to-white border border-slate-100">
+        <div className="text-xs font-bold text-brand-500 mb-1">{num}</div>
+        <div className="font-bold text-slate-800 mb-1">{title}</div>
+        <div className="text-xs text-slate-500">{desc}</div>
+      </div>
+    );
+  }
+
+  function VocabStep({ session, onNext }) {
+    const [idx, setIdx] = useState(0);
+    const [flipped, setFlipped] = useState(false);
+    const [knownSet, setKnownSet] = useState(new Set());
+    const word = session.vocab[idx];
+    const total = session.vocab.length;
+    const isLast = idx === total - 1;
+
+    const advance = (known) => {
+      setKnownSet(prev => {
+        const next = new Set(prev);
+        if (known) next.add(word.word);
+        return next;
+      });
+      setFlipped(false);
+      if (isLast) {
+        onNext();
+      } else {
+        setIdx(i => i + 1);
+      }
+    };
+
+    if (!word) {
+      return (
+        <div className="bg-white rounded-3xl shadow-card border border-slate-100 p-8 text-center">
+          <p className="text-slate-500 mb-4">今日沒有新單字 — 直接進入文法環節</p>
+          <button onClick={onNext} className="px-6 py-3 rounded-xl bg-brand-600 text-white font-bold">繼續 →</button>
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="text-xs sm:text-sm text-slate-500 whitespace-nowrap">單字 <span className="font-bold text-slate-800">{idx + 1}</span> / {total}</div>
+          <div className="flex-1 mx-3 sm:mx-4 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+            <div className="h-full bg-brand-500 progress-bar" style={{ width: `${((idx+1)/total)*100}%` }}></div>
+          </div>
+          <div className="text-[10px] sm:text-xs text-slate-400 whitespace-nowrap">點卡片翻面</div>
+        </div>
+
+        <div className="flip-card h-[60vh] max-h-[420px] min-h-[280px] sm:h-80 cursor-pointer select-none" onClick={() => setFlipped(f => !f)}>
+          <div className="flip-inner" style={{ transform: flipped ? 'rotateY(180deg)' : 'none' }}>
+            <div className="flip-front bg-gradient-to-br from-white to-brand-50 border border-brand-100 shadow-card p-6 sm:p-10">
+              <div className="text-center">
+                <div className="text-4xl sm:text-5xl font-black text-slate-800 mb-2 break-words">{word.word}</div>
+                <div className="ipa text-slate-500 text-sm sm:text-base mb-4">{word.ipa} <span className="text-slate-400">· {word.pos}</span></div>
+                <button onClick={(e) => { e.stopPropagation(); speak(word.word); }} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-slate-200 active:bg-brand-50 hover:border-brand-300 hover:text-brand-700 transition text-sm font-medium shadow-sm">
+                  🔊 聽發音
+                </button>
+              </div>
+            </div>
+            <div className="flip-back bg-gradient-to-br from-brand-600 to-indigo-700 text-white p-6 sm:p-10">
+              <div className="text-center w-full">
+                <div className="text-2xl sm:text-3xl font-black mb-2">{word.zh}</div>
+                <div className="text-brand-100 text-xs sm:text-sm mb-4">{word.pos}</div>
+                <div className="bg-white/10 rounded-xl p-3 sm:p-4 text-left max-w-md mx-auto">
+                  <div className="text-sm sm:text-base leading-relaxed">{word.example}</div>
+                  <div className="text-xs text-brand-200 mt-1">{word.exampleZh}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="sticky-actions">
+          <div className="flex gap-3">
+            <button onClick={(e) => { e.stopPropagation(); advance(false); }} className="flex-1 py-3.5 rounded-xl bg-white border-2 border-slate-200 active:border-rose-300 active:bg-rose-50 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 font-semibold transition text-sm sm:text-base">
+              還不熟
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); advance(true); }} className="flex-1 py-3.5 rounded-xl bg-brand-600 active:scale-[0.98] hover:bg-brand-700 text-white font-semibold transition text-sm sm:text-base shadow-soft">
+              記住了 →
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function GrammarStep({ session, onNext }) {
+    const [idx, setIdx] = useState(0);
+    const lesson = session.grammar[idx];
+    const isLast = idx === session.grammar.length - 1;
+
+    if (!lesson) {
+      return (
+        <div className="bg-white rounded-3xl shadow-card border border-slate-100 p-8 text-center">
+          <p className="text-slate-500 mb-4">今日沒有新文法 — 直接進入練習</p>
+          <button onClick={onNext} className="px-6 py-3 rounded-xl bg-brand-600 text-white font-bold">繼續 →</button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-card border border-slate-100 overflow-hidden">
+        <div className="bg-gradient-to-r from-brand-600 to-indigo-700 text-white p-5 sm:p-6">
+          <div className="text-xs font-bold text-brand-200 mb-1">文法 {idx + 1} / {session.grammar.length}</div>
+          <h2 className="text-xl sm:text-2xl font-black leading-tight">{lesson.title}</h2>
+          <p className="text-brand-100 text-xs sm:text-sm mt-1">{lesson.summary}</p>
+        </div>
+        <div className="p-5 sm:p-8 space-y-5 sm:space-y-6 overflow-y-auto scrollbar-thin">
+          {lesson.sections.map((sec, i) => (
+            <div key={i} className="fade-up">
+              <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2 text-sm sm:text-base">
+                <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-700 grid place-items-center text-xs flex-shrink-0">{i+1}</span>
+                {sec.heading}
+              </h3>
+              <div className="text-slate-700 prose prose-sm max-w-none text-sm sm:text-base" dangerouslySetInnerHTML={{ __html: sec.html }} />
+            </div>
+          ))}
+        </div>
+        <div className="p-4 sm:p-6 border-t border-slate-100 flex justify-between gap-2 safe-bottom">
+          <button
+            onClick={() => idx > 0 ? setIdx(i => i - 1) : null}
+            disabled={idx === 0}
+            className="px-4 sm:px-5 py-3 text-slate-500 active:text-slate-800 hover:text-slate-800 disabled:opacity-30 transition text-sm">
+            ← 上一個
+          </button>
+          {isLast ? (
+            <button onClick={onNext} className="px-6 py-3.5 rounded-xl bg-brand-600 active:scale-[0.98] hover:bg-brand-700 text-white font-bold shadow-soft text-sm sm:text-base">進入練習 →</button>
+          ) : (
+            <button onClick={() => setIdx(i => i + 1)} className="px-6 py-3.5 rounded-xl bg-brand-600 active:scale-[0.98] hover:bg-brand-700 text-white font-bold shadow-soft text-sm sm:text-base">下一個 →</button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  function PracticeStep({ session, state, setState, onComplete }) {
+    const [idx, setIdx] = useState(0);
+    const [selected, setSelected] = useState(null);
+    const [revealed, setRevealed] = useState(false);
+    const [results, setResults] = useState([]);
+    const [shake, setShake] = useState(false);
+    const startTime = useRef(Date.now());
+
+    const q = session.questions[idx];
+    const total = session.questions.length;
+    const isLast = idx === total - 1;
+
+    if (!q) {
+      return (
+        <div className="bg-white rounded-3xl shadow-card border border-slate-100 p-8 text-center">
+          <p>今日沒有題目 — 直接結算</p>
+          <button onClick={() => onComplete({ correct: 0, total: 0, results: [] })} className="px-6 py-3 mt-3 rounded-xl bg-brand-600 text-white font-bold">繼續 →</button>
+        </div>
+      );
+    }
+
+    const submit = () => {
+      if (selected == null) return;
+      const isCorrect = selected === q.answer;
+      if (!isCorrect) { setShake(true); setTimeout(() => setShake(false), 400); }
+      setRevealed(true);
+      setState(prev => applyAnswerOutcome(prev, q, isCorrect));
+      setResults(r => [...r, { qId: q.id, correct: isCorrect, selected }]);
+    };
+
+    const goNext = () => {
+      if (isLast) {
+        const correct = results.filter(r => r.correct).length;
+        onComplete({ correct, total: results.length, results, durationSec: Math.round((Date.now() - startTime.current) / 1000) });
+      } else {
+        setIdx(i => i + 1);
+        setSelected(null);
+        setRevealed(false);
+      }
+    };
+
+    const isReviewQ = !session.questions.slice(0, total - (session.reviewQuestionCount || 0)).find(qq => qq.id === q.id);
+
+    return (
+      <div className={`bg-white rounded-2xl sm:rounded-3xl shadow-card border border-slate-100 p-5 sm:p-8 ${shake ? 'shake' : ''}`}>
+        <div className="flex items-center justify-between mb-3 text-sm">
+          <div className="text-slate-500 text-xs sm:text-sm">題目 <span className="font-bold text-slate-800">{idx + 1}</span> / {total}</div>
+          {isReviewQ && (
+            <div className="px-2 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium border border-amber-200">📌 複習題</div>
+          )}
+        </div>
+
+        <div className="mb-5 sm:mb-6 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+          <div className="h-full bg-brand-500 progress-bar" style={{ width: `${((idx+1)/total)*100}%` }}></div>
+        </div>
+
+        <div className="text-base sm:text-xl font-semibold text-slate-800 leading-relaxed mb-5 sm:mb-6 min-h-[3rem]">
+          {q.stem.split('______').map((part, i, arr) => (
+            <React.Fragment key={i}>
+              {part}
+              {i < arr.length - 1 && <span className="inline-block min-w-[60px] sm:min-w-[80px] border-b-2 border-brand-400 mx-1 align-middle"></span>}
+            </React.Fragment>
+          ))}
+        </div>
+
+        <div className="space-y-2.5 sm:space-y-3 mb-5">
+          {q.options.map((opt, i) => {
+            const isSelected = selected === i;
+            const isCorrect = i === q.answer;
+            let cls = 'border-slate-200 active:border-brand-300 hover:border-brand-300 bg-white';
+            if (revealed) {
+              if (isCorrect) cls = 'border-emerald-500 bg-emerald-50 text-emerald-900';
+              else if (isSelected) cls = 'border-rose-500 bg-rose-50 text-rose-900';
+              else cls = 'border-slate-200 bg-white opacity-60';
+            } else if (isSelected) {
+              cls = 'border-brand-500 bg-brand-50 text-brand-900';
+            }
+            return (
+              <button key={i}
+                onClick={() => !revealed && setSelected(i)}
+                disabled={revealed}
+                className={`option-btn w-full text-left p-3.5 sm:p-4 rounded-xl border-2 font-medium text-sm sm:text-base ${cls}`}>
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full grid place-items-center text-sm font-bold flex-shrink-0 ${revealed && isCorrect ? 'bg-emerald-500 text-white' : revealed && isSelected ? 'bg-rose-500 text-white' : isSelected ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                    {String.fromCharCode(65 + i)}
+                  </div>
+                  <div className="flex-1">{opt}</div>
+                  {revealed && isCorrect && <span className="text-emerald-600 font-bold">✓</span>}
+                  {revealed && isSelected && !isCorrect && <span className="text-rose-600 font-bold">✗</span>}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {revealed && (
+          <div className={`rounded-xl p-4 mb-2 fade-up ${selected === q.answer ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}>
+            <div className="font-bold mb-1 text-sm sm:text-base">
+              {selected === q.answer ? '✅ 答對！' : '❌ 答錯了，沒關係'}
+            </div>
+            <div className="text-sm text-slate-700 leading-relaxed">{q.explain}</div>
+            {q.vocab && q.vocab.length > 0 && (
+              <div className="mt-2 text-xs text-slate-500">
+                相關單字：{q.vocab.map(w => VOCABULARY[w]?.word || w).join(', ')}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="sticky-actions mt-4">
+          {!revealed ? (
+            <button onClick={submit} disabled={selected == null}
+              className="w-full py-3.5 rounded-xl bg-brand-600 active:scale-[0.98] hover:bg-brand-700 text-white font-bold shadow-soft disabled:opacity-40 disabled:cursor-not-allowed transition text-sm sm:text-base">
+              送出答案
+            </button>
+          ) : (
+            <button onClick={goNext} className="w-full py-3.5 rounded-xl bg-brand-600 active:scale-[0.98] hover:bg-brand-700 text-white font-bold shadow-soft transition text-sm sm:text-base">
+              {isLast ? '查看結果' : '下一題'} →
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  function ResultStep({ session, state, onExit }) {
+    const last = state.history[state.history.length - 1];
+    if (!last) return null;
+    const accuracy = Math.round((last.correct / last.total) * 100);
+    const minutes = Math.floor((last.durationSec || 0) / 60);
+    const seconds = (last.durationSec || 0) % 60;
+
+    let verdict, verdictColor, advice;
+    if (accuracy >= 87) { verdict = '太棒了！👏'; verdictColor = 'emerald'; advice = '觀念清楚，明天可以直接進度到下一個主題。'; }
+    else if (accuracy >= 67) { verdict = '及格了！'; verdictColor = 'brand'; advice = '把錯的題目再看一次詳解，明天會看到部分複習。'; }
+    else if (accuracy >= 47) { verdict = '需要再多練習'; verdictColor = 'amber'; advice = '建議再看一次今天的文法，明天的課會包含更多今日題型的複習。'; }
+    else { verdict = '別氣餒，慢慢來'; verdictColor = 'rose'; advice = '把整份文法重讀一遍。明天會以複習為主，鞏固觀念再前進。'; }
+
+    const colorMap = {
+      emerald: 'from-emerald-500 to-green-600',
+      brand: 'from-brand-600 to-indigo-700',
+      amber: 'from-amber-500 to-orange-600',
+      rose: 'from-rose-500 to-pink-600',
+    };
+
+    // Show weak items that will be reinforced
+    const weakWords = (session.vocab || []).filter(w => {
+      const v = state.vocabStats[w.word];
+      return v && v.mastery < 3;
+    }).slice(0, 5);
+
+    const weakTopics = Object.entries(state.topicStats)
+      .filter(([_, s]) => s.confidence < 70 && s.wrong > 0)
+      .sort((a, b) => a[1].confidence - b[1].confidence)
+      .slice(0, 3);
+
+    return (
+      <div className="space-y-4 sm:space-y-6 fade-up safe-bottom">
+        <div className={`rounded-2xl sm:rounded-3xl p-6 sm:p-8 bg-gradient-to-br ${colorMap[verdictColor]} text-white shadow-card`}>
+          <div className="text-xs sm:text-sm opacity-90 mb-1">Day {last.day} 完成</div>
+          <h2 className="text-2xl sm:text-3xl font-black mb-1">{verdict}</h2>
+          <p className="opacity-90 mb-5 sm:mb-6 text-sm sm:text-base">{advice}</p>
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
+            <div className="bg-white/10 rounded-xl p-3 sm:p-4">
+              <div className="text-[10px] sm:text-xs opacity-80 mb-1">答對</div>
+              <div className="text-lg sm:text-2xl font-black">{last.correct}<span className="text-xs sm:text-sm font-medium opacity-70"> /{last.total}</span></div>
+            </div>
+            <div className="bg-white/10 rounded-xl p-3 sm:p-4">
+              <div className="text-[10px] sm:text-xs opacity-80 mb-1">準確率</div>
+              <div className="text-lg sm:text-2xl font-black">{accuracy}<span className="text-xs sm:text-sm font-medium opacity-70">%</span></div>
+            </div>
+            <div className="bg-white/10 rounded-xl p-3 sm:p-4">
+              <div className="text-[10px] sm:text-xs opacity-80 mb-1">用時</div>
+              <div className="text-lg sm:text-2xl font-black">{minutes}<span className="text-xs sm:text-sm font-medium opacity-70">分</span>{seconds}<span className="text-xs sm:text-sm font-medium opacity-70">秒</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-100">
+          <h3 className="font-bold text-slate-800 mb-1">🔁 系統將在下次課程中強化這些</h3>
+          <p className="text-sm text-slate-500 mb-4">適應性引擎已根據你今天的表現調整接下來的內容</p>
+          <div className="space-y-4">
+            {weakTopics.length > 0 && (
+              <div>
+                <div className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">弱點觀念</div>
+                <div className="space-y-2">
+                  {weakTopics.map(([topic, s]) => (
+                    <div key={topic} className="flex items-center gap-3">
+                      <div className="text-sm font-medium text-slate-700 w-44 truncate">
+                        {GRAMMAR_LESSONS[topic]?.title || (topic === 'vocab' ? '單字辨識' : topic === 'mixed' ? '時態綜合' : topic)}
+                      </div>
+                      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div className={`h-full progress-bar ${s.confidence < 40 ? 'bg-rose-500' : 'bg-amber-500'}`} style={{ width: `${s.confidence}%` }}></div>
+                      </div>
+                      <div className="text-xs font-semibold text-slate-500">{s.confidence}%</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {weakWords.length > 0 && (
+              <div>
+                <div className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">需要再複習的單字</div>
+                <div className="flex flex-wrap gap-2">
+                  {weakWords.map(w => (
+                    <span key={w.word} className="px-3 py-1 bg-amber-50 border border-amber-200 text-amber-800 rounded-full text-sm">
+                      {w.word} <span className="opacity-60">{w.zh}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {weakTopics.length === 0 && weakWords.length === 0 && (
+              <div className="text-sm text-slate-500">沒有明顯弱點 — 你今天表現很穩定！🎉</div>
+            )}
+          </div>
+        </div>
+
+        <div className="text-center">
+          <button onClick={onExit} className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-brand-600 active:scale-[0.98] hover:bg-brand-700 text-white font-bold shadow-soft transition">
+            回到首頁
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ============================================================
+  //  ROOT APP
+  // ============================================================
+
+  function App() {
+    const [state, setState] = useState(() => loadState());
+    const [view, setView] = useState('home'); // 'home' | 'lesson'
+
+    // Auto-save on every state change
+    useEffect(() => { saveState(state); }, [state]);
+
+    const todaySession = useMemo(() => buildTodaySession(state, state.currentDay), [state]);
+
+    const startLesson = () => setView('lesson');
+    const goHome = () => setView('home');
+
+    const handleComplete = (result) => {
+      setState(prev => recordSessionComplete(prev, todaySession.day, result.correct, result.total));
+    };
+
+    const handleReset = () => {
+      if (confirm('確定要清除所有學習進度，重新開始嗎？此動作無法復原。')) {
+        const fresh = defaultState();
+        setState(fresh);
+        saveState(fresh);
+        setView('home');
+      }
+    };
+
+    return (
+      <div>
+        <Header state={state} onReset={handleReset} onGoHome={goHome} />
+        {view === 'home' && (
+          <Dashboard state={state} todaySession={todaySession} onStart={startLesson} />
+        )}
+        {view === 'lesson' && (
+          <LessonFlow
+            session={todaySession}
+            state={state}
+            setState={setState}
+            onComplete={handleComplete}
+            onExit={goHome}
+          />
+        )}
+        <footer className="max-w-5xl mx-auto px-5 py-8 text-center text-xs text-slate-400">
+          學習進度自動儲存於你的瀏覽器 · 為 winne 量身打造 · 6 月達 500 分 / 12 月達 800 分
+        </footer>
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
