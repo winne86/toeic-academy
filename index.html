@@ -376,16 +376,13 @@
       currentDay: 1,
       streak: 0,
       lastStudyDate: null,
-      // per-word mastery: 0 (new) ... 5 (mastered)
-      vocabStats: {},   // { word: { mastery, seen, correct, wrong, lastSeen } }
-      // per-question history
-      questionStats: {}, // { qId: { attempts, correct, wrong, lastSeen } }
-      // per-grammar topic confidence
-      topicStats: {},    // { topicId: { correct, wrong, confidence } }
-      // questions queued for review (because user got them wrong)
-      reviewQueue: [],   // [qId]
-      // history of completed sessions
-      history: [],       // [{ date, day, correct, total, durationSec }]
+      lastQuizDate: null,
+      lastLessonEndTime: null,
+      vocabStats: {},
+      questionStats: {},
+      topicStats: {},
+      reviewQueue: [],
+      history: [],
     };
   }
 
@@ -505,10 +502,75 @@
     return {
       ...state,
       lastStudyDate: today,
+      lastLessonEndTime: Date.now(),
       streak,
       currentDay: Math.max(state.currentDay, day + 1),
       history: [...state.history, { date: today, day, correct, total, ts: Date.now() }],
     };
+  }
+
+  // ============================================================
+  //  SMART SUGGESTIONS — context-aware quiz prompts
+  // ============================================================
+
+  function todayStr() { return new Date().toISOString().slice(0, 10); }
+  function yesterdayStr() { return new Date(Date.now() - 86400000).toISOString().slice(0, 10); }
+
+  function getSuggestion(state) {
+    const pool = getQuizPool(state);
+    if (pool.length < 4) return null;
+
+    const today = todayStr();
+    const dayOfWeek = new Date().getDay(); // 0 = Sunday
+    const quizzedToday = state.lastQuizDate === today;
+    if (quizzedToday) return null; // don't nag if they've already quizzed today
+
+    // Priority 1: just completed a lesson (within 30 min)
+    const POST_LESSON_WINDOW = 30 * 60 * 1000;
+    if (state.lastLessonEndTime && Date.now() - state.lastLessonEndTime < POST_LESSON_WINDOW) {
+      const count = Math.min(5, pool.length);
+      return {
+        type: 'post-lesson',
+        icon: '🎉',
+        title: '剛學完，趁熱再試一下！',
+        subtitle: '把剛才的單字鎖進記憶',
+        message: `${count} 題隨機抽考，1 分鐘搞定`,
+        count,
+        primaryLabel: `🎯 開始 ${count} 題快考`,
+        gradient: 'from-emerald-500 to-teal-600',
+      };
+    }
+
+    // Priority 2: it's Sunday + they have ≥10 words → total review
+    if (dayOfWeek === 0 && pool.length >= 10) {
+      return {
+        type: 'sunday',
+        icon: '📅',
+        title: '今天是週日 · 總複習日',
+        subtitle: `把這週累積的 ${pool.length} 個單字一次考完`,
+        message: '答錯的字會被標記，下週優先加強',
+        count: pool.length,
+        primaryLabel: `🎯 開始 ${pool.length} 題總複習`,
+        gradient: 'from-violet-600 to-purple-700',
+      };
+    }
+
+    // Priority 3: yesterday studied → quick recap before today's lesson
+    if (state.lastStudyDate === yesterdayStr() && pool.length >= 10) {
+      const count = Math.min(10, pool.length);
+      return {
+        type: 'yesterday',
+        icon: '🔄',
+        title: '昨天學的還記得嗎？',
+        subtitle: '開始今天的課之前，先快速回顧',
+        message: `${count} 題複習昨天的重點單字`,
+        count,
+        primaryLabel: `🎯 開始 ${count} 題複習`,
+        gradient: 'from-amber-500 to-orange-600',
+      };
+    }
+
+    return null;
   }
 
   // ============================================================
@@ -1378,8 +1440,8 @@
   //  QUIZ FLOW — random vocabulary test
   // ============================================================
 
-  function QuizFlow({ state, setState, onExit }) {
-    const [phase, setPhase] = useState('setup'); // 'setup' | 'play' | 'result'
+  function QuizFlow({ state, setState, onExit, initialCount }) {
+    const [phase, setPhase] = useState('setup');
     const [questions, setQuestions] = useState([]);
     const [idx, setIdx] = useState(0);
     const [selected, setSelected] = useState(null);
@@ -1399,6 +1461,13 @@
       startTime.current = Date.now();
       setPhase('play');
     };
+
+    // Auto-start when initialCount is provided (from suggestion modal)
+    useEffect(() => {
+      if (initialCount && phase === 'setup' && questions.length === 0 && pool.length >= 4) {
+        startQuiz(initialCount);
+      }
+    }, []);
 
     if (phase === 'setup') {
       const enough = pool.length >= 4;
@@ -1458,6 +1527,7 @@
       };
       const goNext = () => {
         if (isLast) {
+          setState(prev => ({ ...prev, lastQuizDate: todayStr() }));
           setPhase('result');
         } else {
           setIdx(i => i + 1);
@@ -1607,6 +1677,29 @@
     );
   }
 
+  function SuggestionModal({ suggestion, onAccept, onDismiss }) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/50 backdrop-blur-sm fade-up p-4 safe-bottom" onClick={onDismiss}>
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-card overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div className={`p-6 sm:p-7 bg-gradient-to-br ${suggestion.gradient} text-white`}>
+            <div className="text-5xl mb-3">{suggestion.icon}</div>
+            <h2 className="text-2xl font-black mb-1 leading-tight">{suggestion.title}</h2>
+            <p className="opacity-90 text-sm sm:text-base">{suggestion.subtitle}</p>
+          </div>
+          <div className="p-5 sm:p-6 space-y-3">
+            <p className="text-slate-600 text-sm sm:text-base">{suggestion.message}</p>
+            <button onClick={onAccept} className="w-full py-3.5 rounded-xl bg-brand-600 active:scale-[0.98] hover:bg-brand-700 text-white font-bold shadow-soft transition">
+              {suggestion.primaryLabel}
+            </button>
+            <button onClick={onDismiss} className="w-full py-3 text-slate-500 active:text-slate-800 hover:text-slate-800 transition text-sm">
+              稍後再說
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   function TutorReportButton({ state, primary }) {
     const [status, setStatus] = useState(null); // 'sharing' | 'copied' | 'manual' | 'error'
     const [manualText, setManualText] = useState('');
@@ -1664,14 +1757,27 @@
   function App() {
     const [state, setState] = useState(() => loadState());
     const [view, setView] = useState('home'); // 'home' | 'lesson' | 'quiz'
+    const [quizPresetCount, setQuizPresetCount] = useState(null);
+    const [dismissedSuggestionTypes, setDismissedSuggestionTypes] = useState(new Set());
 
     // Auto-save on every state change
     useEffect(() => { saveState(state); }, [state]);
 
     const todaySession = useMemo(() => buildTodaySession(state, state.currentDay), [state]);
 
+    const suggestion = useMemo(() => {
+      if (view !== 'home') return null;
+      const s = getSuggestion(state);
+      if (!s || dismissedSuggestionTypes.has(s.type)) return null;
+      return s;
+    }, [view, state, dismissedSuggestionTypes]);
+
     const startLesson = () => setView('lesson');
-    const startQuiz = () => setView('quiz');
+    const startQuiz = () => { setQuizPresetCount(null); setView('quiz'); };
+    const acceptSuggestion = (count) => { setQuizPresetCount(count); setView('quiz'); };
+    const dismissSuggestion = (type) => {
+      setDismissedSuggestionTypes(prev => { const next = new Set(prev); next.add(type); return next; });
+    };
     const goHome = () => setView('home');
 
     const handleComplete = (result) => {
@@ -1703,7 +1809,14 @@
           />
         )}
         {view === 'quiz' && (
-          <QuizFlow state={state} setState={setState} onExit={goHome} />
+          <QuizFlow state={state} setState={setState} onExit={goHome} initialCount={quizPresetCount} />
+        )}
+        {suggestion && (
+          <SuggestionModal
+            suggestion={suggestion}
+            onAccept={() => acceptSuggestion(suggestion.count)}
+            onDismiss={() => dismissSuggestion(suggestion.type)}
+          />
         )}
         <footer className="max-w-5xl mx-auto px-5 py-8 text-center text-xs text-slate-400">
           學習進度自動儲存於你的瀏覽器 · 為 winne 量身打造 · 6 月達 500 分 / 12 月達 800 分
