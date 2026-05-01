@@ -512,6 +512,86 @@
   }
 
   // ============================================================
+  //  VOCAB QUIZ — random sampling weighted by mastery
+  // ============================================================
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function getQuizPool(state) {
+    return Object.keys(state.vocabStats).filter(w => VOCABULARY[w]);
+  }
+
+  function generateQuiz(state, count) {
+    const pool = getQuizPool(state);
+    if (pool.length < 4) return [];
+
+    // Weight by inverse mastery — mastery 0 → weight 6, mastery 5 → weight 1
+    const weighted = [];
+    pool.forEach(w => {
+      const m = state.vocabStats[w].mastery || 0;
+      const weight = Math.max(1, 6 - m);
+      for (let i = 0; i < weight; i++) weighted.push(w);
+    });
+
+    const chosen = new Set();
+    const questions = [];
+    let attempts = 0;
+    while (questions.length < count && chosen.size < pool.length && attempts < 500) {
+      attempts++;
+      const w = weighted[Math.floor(Math.random() * weighted.length)];
+      if (chosen.has(w)) continue;
+      chosen.add(w);
+
+      const direction = Math.random() < 0.5 ? 'enToZh' : 'zhToEn';
+      const distractorPool = pool.filter(x => x !== w);
+      const distractors = shuffle(distractorPool).slice(0, 3);
+      const allWords = shuffle([w, ...distractors]);
+      const optionsLabel = direction === 'enToZh'
+        ? allWords.map(x => VOCABULARY[x].zh)
+        : allWords.map(x => VOCABULARY[x].word);
+      const answerIdx = allWords.indexOf(w);
+
+      questions.push({
+        id: `quiz-${Date.now()}-${questions.length}`,
+        word: w,
+        direction,
+        prompt: direction === 'enToZh' ? VOCABULARY[w].word : VOCABULARY[w].zh,
+        promptHint: direction === 'enToZh'
+          ? `${VOCABULARY[w].ipa} · ${VOCABULARY[w].pos}`
+          : '請選出對應的英文單字',
+        options: optionsLabel,
+        allWords,
+        answer: answerIdx,
+      });
+    }
+    return questions;
+  }
+
+  function applyQuizAnswer(state, q, isCorrect) {
+    const next = { ...state };
+    next.vocabStats = { ...state.vocabStats };
+    const v = next.vocabStats[q.word] || { mastery: 0, seen: 0, correct: 0, wrong: 0, lastSeen: null };
+    v.seen += 1;
+    v.lastSeen = new Date().toISOString();
+    if (isCorrect) {
+      v.correct += 1;
+      v.mastery = Math.min(5, v.mastery + 1);
+    } else {
+      v.wrong += 1;
+      v.mastery = Math.max(0, v.mastery - 1);
+    }
+    next.vocabStats[q.word] = v;
+    return next;
+  }
+
+  // ============================================================
   //  PRONUNCIATION (Web Speech API)
   // ============================================================
 
@@ -697,7 +777,7 @@
     );
   }
 
-  function Dashboard({ state, onStart, todaySession }) {
+  function Dashboard({ state, onStart, todaySession, onStartQuiz }) {
     const masteredWords = Object.values(state.vocabStats).filter(v => (v.mastery || 0) >= 4).length;
     const totalSeen = Object.values(state.vocabStats).length;
     const totalCorrect = state.history.reduce((s, h) => s + h.correct, 0);
@@ -770,6 +850,18 @@
               ))}
             </div>
           </div>
+        )}
+
+        {/* Vocab quiz entry */}
+        {Object.keys(state.vocabStats).length >= 4 && (
+          <button onClick={onStartQuiz} className="w-full text-left bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 hover:from-amber-500 hover:to-rose-600 active:scale-[0.99] text-white rounded-2xl p-5 shadow-card transition flex items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-white/20 grid place-items-center text-3xl">🎯</div>
+            <div className="flex-1">
+              <div className="font-black text-lg">單字隨機抽考</div>
+              <div className="text-sm opacity-90">{Object.keys(state.vocabStats).length} 個已學單字 · 不熟的更常被抽到</div>
+            </div>
+            <div className="text-2xl">→</div>
+          </button>
         )}
 
         {/* Tutor report — only show if user has any history */}
@@ -1282,6 +1374,239 @@
     );
   }
 
+  // ============================================================
+  //  QUIZ FLOW — random vocabulary test
+  // ============================================================
+
+  function QuizFlow({ state, setState, onExit }) {
+    const [phase, setPhase] = useState('setup'); // 'setup' | 'play' | 'result'
+    const [questions, setQuestions] = useState([]);
+    const [idx, setIdx] = useState(0);
+    const [selected, setSelected] = useState(null);
+    const [revealed, setRevealed] = useState(false);
+    const [results, setResults] = useState([]);
+    const startTime = useRef(0);
+
+    const pool = getQuizPool(state);
+    const startQuiz = (count) => {
+      const qs = generateQuiz(state, Math.min(count, pool.length));
+      if (qs.length < 1) return;
+      setQuestions(qs);
+      setIdx(0);
+      setSelected(null);
+      setRevealed(false);
+      setResults([]);
+      startTime.current = Date.now();
+      setPhase('play');
+    };
+
+    if (phase === 'setup') {
+      const enough = pool.length >= 4;
+      return (
+        <div className="max-w-3xl mx-auto px-4 sm:px-5 py-5 sm:py-8 fade-up safe-bottom">
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-card border border-slate-100 p-5 sm:p-8">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-amber-400 to-orange-500 grid place-items-center text-3xl mb-3 shadow-soft">🎯</div>
+              <h2 className="text-2xl font-black text-slate-800 mb-1">單字隨機抽考</h2>
+              <p className="text-sm text-slate-500">從你已學過的 <b className="text-brand-700">{pool.length}</b> 個單字中隨機出題</p>
+              <p className="text-xs text-slate-400 mt-1">不熟的單字會更常被抽到</p>
+            </div>
+
+            {!enough ? (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-900">
+                還需要至少 <b>4 個</b>已學過的單字才能開始抽考。先把 Day 1 的單字過一遍吧！
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="text-sm font-bold text-slate-700 mb-2">選擇題數</div>
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  {[5, 10, 20].map(n => {
+                    const disabled = n > pool.length;
+                    return (
+                      <button key={n} onClick={() => !disabled && startQuiz(n)}
+                        disabled={disabled}
+                        className={`py-4 rounded-xl font-bold text-lg border-2 transition active:scale-[0.97] ${disabled ? 'border-slate-200 text-slate-300 bg-slate-50 cursor-not-allowed' : 'border-brand-200 text-brand-700 bg-brand-50 hover:bg-brand-100 active:bg-brand-100'}`}>
+                        {n} 題
+                      </button>
+                    );
+                  })}
+                </div>
+                <button onClick={() => startQuiz(pool.length)}
+                  className="w-full mt-3 py-3.5 rounded-xl bg-brand-600 active:scale-[0.98] hover:bg-brand-700 text-white font-bold shadow-soft transition">
+                  全部 {pool.length} 個都考
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="text-center mt-4">
+            <button onClick={onExit} className="text-slate-500 active:text-slate-800 hover:text-slate-800 transition py-3 px-5 text-sm">← 返回首頁</button>
+          </div>
+        </div>
+      );
+    }
+
+    if (phase === 'play') {
+      const q = questions[idx];
+      const total = questions.length;
+      const isLast = idx === total - 1;
+      const submit = () => {
+        if (selected == null) return;
+        const isCorrect = selected === q.answer;
+        setRevealed(true);
+        setState(prev => applyQuizAnswer(prev, q, isCorrect));
+        setResults(r => [...r, { word: q.word, direction: q.direction, correct: isCorrect, selected }]);
+      };
+      const goNext = () => {
+        if (isLast) {
+          setPhase('result');
+        } else {
+          setIdx(i => i + 1);
+          setSelected(null);
+          setRevealed(false);
+        }
+      };
+      return (
+        <div className="max-w-3xl mx-auto px-4 sm:px-5 py-5 sm:py-8 fade-up safe-bottom">
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-card border border-slate-100 p-5 sm:p-8">
+            <div className="flex items-center justify-between mb-3 text-xs sm:text-sm">
+              <div className="text-slate-500">抽考 <span className="font-bold text-slate-800">{idx + 1}</span> / {total}</div>
+              <div className={`px-2 py-1 rounded-full text-xs font-medium ${q.direction === 'enToZh' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-violet-50 text-violet-700 border border-violet-200'}`}>
+                {q.direction === 'enToZh' ? '英 → 中' : '中 → 英'}
+              </div>
+            </div>
+            <div className="mb-5 sm:mb-6 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              <div className="h-full bg-amber-500 progress-bar" style={{ width: `${((idx+1)/total)*100}%` }}></div>
+            </div>
+
+            <div className="text-center py-4 sm:py-6">
+              <div className="text-3xl sm:text-5xl font-black text-slate-800 mb-2 break-words">{q.prompt}</div>
+              <div className="text-xs sm:text-sm text-slate-500 mb-3">{q.promptHint}</div>
+              {q.direction === 'enToZh' && (
+                <button onClick={() => speak(q.prompt)} className="inline-flex items-center gap-1 px-4 py-2 rounded-full bg-white border border-slate-200 active:bg-brand-50 hover:border-brand-300 text-sm">
+                  🔊 聽發音
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-2.5 mb-5">
+              {q.options.map((opt, i) => {
+                const isSelected = selected === i;
+                const isCorrect = i === q.answer;
+                let cls = 'border-slate-200 active:border-brand-300 hover:border-brand-300 bg-white';
+                if (revealed) {
+                  if (isCorrect) cls = 'border-emerald-500 bg-emerald-50 text-emerald-900';
+                  else if (isSelected) cls = 'border-rose-500 bg-rose-50 text-rose-900';
+                  else cls = 'border-slate-200 bg-white opacity-60';
+                } else if (isSelected) {
+                  cls = 'border-brand-500 bg-brand-50 text-brand-900';
+                }
+                return (
+                  <button key={i}
+                    onClick={() => !revealed && setSelected(i)}
+                    disabled={revealed}
+                    className={`option-btn w-full text-left p-3.5 sm:p-4 rounded-xl border-2 font-medium text-sm sm:text-base ${cls}`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full grid place-items-center text-sm font-bold flex-shrink-0 ${revealed && isCorrect ? 'bg-emerald-500 text-white' : revealed && isSelected ? 'bg-rose-500 text-white' : isSelected ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                        {String.fromCharCode(65 + i)}
+                      </div>
+                      <div className="flex-1">{opt}</div>
+                      {revealed && isCorrect && <span className="text-emerald-600 font-bold">✓</span>}
+                      {revealed && isSelected && !isCorrect && <span className="text-rose-600 font-bold">✗</span>}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {revealed && (() => {
+              const v = VOCABULARY[q.word];
+              return (
+                <div className={`rounded-xl p-4 mb-2 fade-up ${selected === q.answer ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}>
+                  <div className="font-bold mb-1 text-sm sm:text-base">
+                    {selected === q.answer ? '✅ 答對！' : '❌ 答錯了'}
+                  </div>
+                  <div className="text-sm text-slate-700">
+                    <b>{v.word}</b> {v.ipa} · {v.pos} = <b>{v.zh}</b>
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1 leading-relaxed">{v.example}<br/>{v.exampleZh}</div>
+                </div>
+              );
+            })()}
+
+            <div className="sticky-actions mt-3">
+              {!revealed ? (
+                <button onClick={submit} disabled={selected == null}
+                  className="w-full py-3.5 rounded-xl bg-brand-600 active:scale-[0.98] hover:bg-brand-700 text-white font-bold shadow-soft disabled:opacity-40 disabled:cursor-not-allowed transition">
+                  送出答案
+                </button>
+              ) : (
+                <button onClick={goNext} className="w-full py-3.5 rounded-xl bg-brand-600 active:scale-[0.98] hover:bg-brand-700 text-white font-bold shadow-soft transition">
+                  {isLast ? '查看結果' : '下一題'} →
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // result phase
+    const correct = results.filter(r => r.correct).length;
+    const total = results.length;
+    const accuracy = total ? Math.round(correct / total * 100) : 0;
+    const wrongWords = results.filter(r => !r.correct).map(r => VOCABULARY[r.word]).filter(Boolean);
+    const elapsed = Math.round((Date.now() - startTime.current) / 1000);
+    return (
+      <div className="max-w-3xl mx-auto px-4 sm:px-5 py-5 sm:py-8 space-y-4 fade-up safe-bottom">
+        <div className={`rounded-2xl sm:rounded-3xl p-6 sm:p-8 bg-gradient-to-br ${accuracy >= 80 ? 'from-emerald-500 to-green-600' : accuracy >= 60 ? 'from-brand-600 to-indigo-700' : 'from-amber-500 to-orange-600'} text-white shadow-card`}>
+          <div className="text-xs opacity-90 mb-1">隨機抽考完成</div>
+          <h2 className="text-2xl sm:text-3xl font-black mb-3">{accuracy >= 80 ? '🌟 表現很棒！' : accuracy >= 60 ? '繼續加油' : '需要再多練習'}</h2>
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
+            <div className="bg-white/10 rounded-xl p-3 sm:p-4">
+              <div className="text-[10px] sm:text-xs opacity-80 mb-1">答對</div>
+              <div className="text-lg sm:text-2xl font-black">{correct}<span className="text-xs sm:text-sm font-medium opacity-70"> /{total}</span></div>
+            </div>
+            <div className="bg-white/10 rounded-xl p-3 sm:p-4">
+              <div className="text-[10px] sm:text-xs opacity-80 mb-1">準確率</div>
+              <div className="text-lg sm:text-2xl font-black">{accuracy}<span className="text-xs sm:text-sm font-medium opacity-70">%</span></div>
+            </div>
+            <div className="bg-white/10 rounded-xl p-3 sm:p-4">
+              <div className="text-[10px] sm:text-xs opacity-80 mb-1">用時</div>
+              <div className="text-lg sm:text-2xl font-black">{Math.floor(elapsed/60)}<span className="text-xs sm:text-sm font-medium opacity-70">分</span>{elapsed%60}<span className="text-xs sm:text-sm font-medium opacity-70">秒</span></div>
+            </div>
+          </div>
+        </div>
+
+        {wrongWords.length > 0 && (
+          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-100">
+            <h3 className="font-bold text-slate-800 mb-1">❌ 答錯的單字</h3>
+            <p className="text-xs text-slate-500 mb-3">這些字會在後續課程更常出現</p>
+            <div className="space-y-2">
+              {wrongWords.map(v => (
+                <div key={v.word} className="flex items-center justify-between p-3 rounded-lg bg-rose-50 border border-rose-100">
+                  <div>
+                    <div className="font-bold text-rose-900">{v.word}</div>
+                    <div className="text-xs text-slate-500">{v.ipa} · {v.zh}</div>
+                  </div>
+                  <button onClick={() => speak(v.word)} className="text-rose-600 active:scale-90 px-2 py-1 text-sm">🔊</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => setPhase('setup')} className="py-3.5 rounded-xl bg-white border-2 border-slate-200 active:bg-slate-50 hover:border-slate-300 text-slate-700 font-bold transition">
+            再考一次
+          </button>
+          <button onClick={onExit} className="py-3.5 rounded-xl bg-brand-600 active:scale-[0.98] hover:bg-brand-700 text-white font-bold shadow-soft transition">
+            回首頁
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   function TutorReportButton({ state, primary }) {
     const [status, setStatus] = useState(null); // 'sharing' | 'copied' | 'manual' | 'error'
     const [manualText, setManualText] = useState('');
@@ -1338,7 +1663,7 @@
 
   function App() {
     const [state, setState] = useState(() => loadState());
-    const [view, setView] = useState('home'); // 'home' | 'lesson'
+    const [view, setView] = useState('home'); // 'home' | 'lesson' | 'quiz'
 
     // Auto-save on every state change
     useEffect(() => { saveState(state); }, [state]);
@@ -1346,6 +1671,7 @@
     const todaySession = useMemo(() => buildTodaySession(state, state.currentDay), [state]);
 
     const startLesson = () => setView('lesson');
+    const startQuiz = () => setView('quiz');
     const goHome = () => setView('home');
 
     const handleComplete = (result) => {
@@ -1365,7 +1691,7 @@
       <div>
         <Header state={state} onReset={handleReset} onGoHome={goHome} />
         {view === 'home' && (
-          <Dashboard state={state} todaySession={todaySession} onStart={startLesson} />
+          <Dashboard state={state} todaySession={todaySession} onStart={startLesson} onStartQuiz={startQuiz} />
         )}
         {view === 'lesson' && (
           <LessonFlow
@@ -1375,6 +1701,9 @@
             onComplete={handleComplete}
             onExit={goHome}
           />
+        )}
+        {view === 'quiz' && (
+          <QuizFlow state={state} setState={setState} onExit={goHome} />
         )}
         <footer className="max-w-5xl mx-auto px-5 py-8 text-center text-xs text-slate-400">
           學習進度自動儲存於你的瀏覽器 · 為 winne 量身打造 · 6 月達 500 分 / 12 月達 800 分
