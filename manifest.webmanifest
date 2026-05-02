@@ -1,6 +1,6 @@
 {
-  "name": "多益衝刺學院",
-  "short_name": "多益學院",
+  "name": "TOEIC",
+  "short_name": "TOEIC",
   "description": "TOEIC 客製化適應性學習",
   "start_url": "./index.html",
   "display": "standalone",

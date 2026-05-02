@@ -7,12 +7,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="多益學院" />
+  <meta name="apple-mobile-web-app-title" content="TOEIC" />
   <meta name="format-detection" content="telephone=no" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
-  <title>多益衝刺學院 · TOEIC Mastery Academy</title>
+  <title>TOEIC</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet" />
@@ -298,45 +298,45 @@
 
   const QUESTIONS = [
     // Day 1 — be verb / 一般動詞現在式 (15 questions)
-    { id: 'q1',  day: 1, topic: 'be-verb',           stem: 'The new employee ______ very hardworking.', options: ['am','is','are','be'], answer: 1, explain: '主詞 The new employee 是「單一人」→ 用 is。', vocab: ['employee'] },
-    { id: 'q2',  day: 1, topic: 'present-simple-3rd', stem: 'Mr. Chen ______ the sales report every Monday.', options: ['submit','submits','submitting','to submit'], answer: 1, explain: '主詞 Mr. Chen 是第三人稱單數 → 動詞 +s。', vocab: ['submit','report'] },
-    { id: 'q3',  day: 1, topic: 'vocab',              stem: 'The ______ will check our work tomorrow.', options: ['supervisor','document','deadline','schedule'], answer: 0, explain: '「主管」會檢查工作，語意符合。', vocab: ['supervisor'] },
-    { id: 'q4',  day: 1, topic: 'be-verb',           stem: 'Lisa and her colleagues ______ in the meeting room.', options: ['is','am','are','be'], answer: 2, explain: '主詞 Lisa and her colleagues 是複數 → 用 are。', vocab: ['colleague'] },
-    { id: 'q5',  day: 1, topic: 'present-simple-3rd', stem: 'Please ______ your attendance by Friday.', options: ['confirm','confirms','confirming','to confirm'], answer: 0, explain: 'Please 後面要接動詞原形。', vocab: ['confirm'] },
-    { id: 'q6',  day: 1, topic: 'vocab',              stem: 'The ______ for the project is next Monday.', options: ['office','deadline','employee','manager'], answer: 1, explain: '「專案的截止日期」。', vocab: ['deadline','project'] },
-    { id: 'q7',  day: 1, topic: 'present-simple-3rd', stem: 'She ______ to the conference in Tokyo every year.', options: ['go','going','goes','gone'], answer: 2, explain: '主詞 She → go 字尾是 o，+ es。', vocab: ['conference'] },
-    { id: 'q8',  day: 1, topic: 'vocab',              stem: 'The marketing ______ has twenty employees.', options: ['document','presentation','department','deadline'], answer: 2, explain: '「行銷部門」。', vocab: ['department','employee'] },
-    { id: 'q9',  day: 1, topic: 'be-verb',           stem: 'I ______ a new employee in the finance department.', options: ['am','is','are','be'], answer: 0, explain: '主詞 I → 用 am。', vocab: ['employee','department'] },
-    { id: 'q10', day: 1, topic: 'present-simple-3rd', stem: 'The manager ______ the meeting because of the emergency.', options: ['postpone','postpones','postponing','to postpone'], answer: 1, explain: '主詞 The manager 是單數 → 動詞 +s。', vocab: ['postpone','manager','meeting'] },
-    { id: 'q11', day: 1, topic: 'vocab',              stem: 'Our ______ wants to see the report this afternoon.', options: ['client','office','schedule','project'], answer: 0, explain: '「客戶想看報告」。', vocab: ['client','report'] },
-    { id: 'q12', day: 1, topic: 'be-verb',           stem: 'We ______ colleagues from the same department.', options: ['is','am','are','has'], answer: 2, explain: '主詞 We → 用 are。', vocab: ['colleague','department'] },
-    { id: 'q13', day: 1, topic: 'present-simple-3rd', stem: 'Mr. Wang ______ a very busy schedule today.', options: ['have','has','having','is have'], answer: 1, explain: '主詞 Mr. Wang 單數 → have 變 has。', vocab: ['schedule'] },
-    { id: 'q14', day: 1, topic: 'present-simple-3rd', stem: 'She ______ the team meeting every Tuesday morning.', options: ['attend','attends','attending','to attend'], answer: 1, explain: '主詞 She → 動詞 +s。', vocab: ['attend','meeting'] },
-    { id: 'q15', day: 1, topic: 'vocab',              stem: 'The ______ is on the third floor of the building.', options: ['attend','submit','office','confirm'], answer: 2, explain: '需要名詞當主詞補語，「辦公室在三樓」。', vocab: ['office'] },
+    { id: 'q1',  day: 1, topic: 'be-verb',           stem: 'The new employee ______ very hardworking.', options: ['am','is','are','be'], answer: 1, explain: '主詞 The new employee 是「單一人」→ 用 is。', stemZh: '這位新員工非常勤奮。', vocab: ['employee'] },
+    { id: 'q2',  day: 1, topic: 'present-simple-3rd', stem: 'Mr. Chen ______ the sales report every Monday.', options: ['submit','submits','submitting','to submit'], answer: 1, explain: '主詞 Mr. Chen 是第三人稱單數 → 動詞 +s。', stemZh: '陳先生每週一都會繳交銷售報告。', vocab: ['submit','report'] },
+    { id: 'q3',  day: 1, topic: 'vocab',              stem: 'The ______ will check our work tomorrow.', options: ['supervisor','document','deadline','schedule'], answer: 0, explain: '「主管」會檢查工作，語意符合。', stemZh: '主管明天會檢查我們的工作。', vocab: ['supervisor'] },
+    { id: 'q4',  day: 1, topic: 'be-verb',           stem: 'Lisa and her colleagues ______ in the meeting room.', options: ['is','am','are','be'], answer: 2, explain: '主詞 Lisa and her colleagues 是複數 → 用 are。', stemZh: 'Lisa 和她的同事們在會議室裡。', vocab: ['colleague'] },
+    { id: 'q5',  day: 1, topic: 'present-simple-3rd', stem: 'Please ______ your attendance by Friday.', options: ['confirm','confirms','confirming','to confirm'], answer: 0, explain: 'Please 後面要接動詞原形。', stemZh: '請在週五前確認您是否出席。', vocab: ['confirm'] },
+    { id: 'q6',  day: 1, topic: 'vocab',              stem: 'The ______ for the project is next Monday.', options: ['office','deadline','employee','manager'], answer: 1, explain: '「專案的截止日期」。', stemZh: '專案的截止日期是下週一。', vocab: ['deadline','project'] },
+    { id: 'q7',  day: 1, topic: 'present-simple-3rd', stem: 'She ______ to the conference in Tokyo every year.', options: ['go','going','goes','gone'], answer: 2, explain: '主詞 She → go 字尾是 o，+ es。', stemZh: '她每年都會去參加東京的會議。', vocab: ['conference'] },
+    { id: 'q8',  day: 1, topic: 'vocab',              stem: 'The marketing ______ has twenty employees.', options: ['document','presentation','department','deadline'], answer: 2, explain: '「行銷部門」。', stemZh: '行銷部門有二十名員工。', vocab: ['department','employee'] },
+    { id: 'q9',  day: 1, topic: 'be-verb',           stem: 'I ______ a new employee in the finance department.', options: ['am','is','are','be'], answer: 0, explain: '主詞 I → 用 am。', stemZh: '我是財務部的新員工。', vocab: ['employee','department'] },
+    { id: 'q10', day: 1, topic: 'present-simple-3rd', stem: 'The manager ______ the meeting because of the emergency.', options: ['postpone','postpones','postponing','to postpone'], answer: 1, explain: '主詞 The manager 是單數 → 動詞 +s。', stemZh: '經理因為緊急狀況延後了會議。', vocab: ['postpone','manager','meeting'] },
+    { id: 'q11', day: 1, topic: 'vocab',              stem: 'Our ______ wants to see the report this afternoon.', options: ['client','office','schedule','project'], answer: 0, explain: '「客戶想看報告」。', stemZh: '我們的客戶想在今天下午看報告。', vocab: ['client','report'] },
+    { id: 'q12', day: 1, topic: 'be-verb',           stem: 'We ______ colleagues from the same department.', options: ['is','am','are','has'], answer: 2, explain: '主詞 We → 用 are。', stemZh: '我們是同部門的同事。', vocab: ['colleague','department'] },
+    { id: 'q13', day: 1, topic: 'present-simple-3rd', stem: 'Mr. Wang ______ a very busy schedule today.', options: ['have','has','having','is have'], answer: 1, explain: '主詞 Mr. Wang 單數 → have 變 has。', stemZh: '王先生今天的行程非常忙碌。', vocab: ['schedule'] },
+    { id: 'q14', day: 1, topic: 'present-simple-3rd', stem: 'She ______ the team meeting every Tuesday morning.', options: ['attend','attends','attending','to attend'], answer: 1, explain: '主詞 She → 動詞 +s。', stemZh: '她每週二早上參加團隊會議。', vocab: ['attend','meeting'] },
+    { id: 'q15', day: 1, topic: 'vocab',              stem: 'The ______ is on the third floor of the building.', options: ['attend','submit','office','confirm'], answer: 2, explain: '需要名詞當主詞補語，「辦公室在三樓」。', stemZh: '辦公室在這棟大樓的三樓。', vocab: ['office'] },
 
     // Day 2 — Past simple / new vocab (15)
-    { id: 'q16', day: 2, topic: 'past-simple',  stem: 'I ______ the meeting yesterday afternoon.', options: ['attend','attends','attended','attending'], answer: 2, explain: 'yesterday → 過去式，attend → attended。', vocab: ['attend'] },
-    { id: 'q17', day: 2, topic: 'past-simple',  stem: 'She ______ the report two days ago.', options: ['submit','submits','submitted','submitting'], answer: 2, explain: 'two days ago → 過去式。', vocab: ['submit','report'] },
-    { id: 'q18', day: 2, topic: 'past-simple',  stem: 'The customers ______ the package last Friday.', options: ['receive','receives','received','receiving'], answer: 2, explain: 'last Friday → 過去式。', vocab: ['receive','customer'] },
-    { id: 'q19', day: 2, topic: 'vocab',         stem: 'Please send the ______ to the accounting department.', options: ['invoice','meeting','project','schedule'], answer: 0, explain: '「請把發票寄到會計部」。', vocab: ['invoice','department'] },
-    { id: 'q20', day: 2, topic: 'past-simple',  stem: 'They ______ the new printer last week.', options: ['purchase','purchases','purchased','purchasing'], answer: 2, explain: 'last week → 過去式。', vocab: ['purchase'] },
-    { id: 'q21', day: 2, topic: 'past-simple',  stem: 'The supervisor ______ in the office yesterday.', options: ['is','was','were','are'], answer: 1, explain: 'yesterday + 單數主詞 → was。', vocab: ['supervisor'] },
-    { id: 'q22', day: 2, topic: 'past-simple',  stem: 'We ______ at the conference last month.', options: ['is','was','were','are'], answer: 2, explain: 'last month + We → were。', vocab: ['conference'] },
-    { id: 'q23', day: 2, topic: 'vocab',         stem: 'We received your ______ this morning. Thank you!', options: ['payment','manager','office','colleague'], answer: 0, explain: '「我們今早收到你的款項」。', vocab: ['payment','receive'] },
-    { id: 'q24', day: 2, topic: 'past-simple',  stem: 'Our team ______ the project ahead of schedule.', options: ['finish','finishes','finished','finishing'], answer: 2, explain: '描述完成的動作，過去式 finished。', vocab: ['finish','project','schedule'] },
-    { id: 'q25', day: 2, topic: 'vocab',         stem: 'Please ______ our supplier about the delay.', options: ['contact','contacts','contacting','contacted'], answer: 0, explain: 'Please + 動詞原形。「聯絡供應商」。', vocab: ['contact'] },
-    { id: 'q26', day: 2, topic: 'past-simple',  stem: 'The delivery ______ at 3 p.m. yesterday.', options: ['arrive','arrives','arrived','arriving'], answer: 2, explain: 'yesterday → 過去式。', vocab: ['deliver'] },
-    { id: 'q27', day: 2, topic: 'vocab',         stem: 'I placed an ______ for 50 boxes of paper.', options: ['order','office','employee','manager'], answer: 0, explain: '「下訂單」place an order。', vocab: ['order'] },
-    { id: 'q28', day: 2, topic: 'past-simple',  stem: 'Mr. Lin ______ the document last night.', options: ['sign','signs','signed','signing'], answer: 2, explain: 'last night → 過去式。', vocab: ['document'] },
-    { id: 'q29', day: 2, topic: 'past-simple',  stem: 'The clients ______ very happy with our service.', options: ['is','was','were','are'], answer: 2, explain: 'clients 複數 + 過去語境 → were。', vocab: ['client'] },
-    { id: 'q30', day: 2, topic: 'vocab',         stem: 'Our biggest ______ is calling about the new product.', options: ['customer','office','schedule','document'], answer: 0, explain: '「最大的客戶」。', vocab: ['customer'] },
+    { id: 'q16', day: 2, topic: 'past-simple',  stem: 'I ______ the meeting yesterday afternoon.', options: ['attend','attends','attended','attending'], answer: 2, explain: 'yesterday → 過去式，attend → attended。', stemZh: '我昨天下午參加了那場會議。', vocab: ['attend'] },
+    { id: 'q17', day: 2, topic: 'past-simple',  stem: 'She ______ the report two days ago.', options: ['submit','submits','submitted','submitting'], answer: 2, explain: 'two days ago → 過去式。', stemZh: '她兩天前繳交了那份報告。', vocab: ['submit','report'] },
+    { id: 'q18', day: 2, topic: 'past-simple',  stem: 'The customers ______ the package last Friday.', options: ['receive','receives','received','receiving'], answer: 2, explain: 'last Friday → 過去式。', stemZh: '顧客們上週五收到了包裹。', vocab: ['receive','customer'] },
+    { id: 'q19', day: 2, topic: 'vocab',         stem: 'Please send the ______ to the accounting department.', options: ['invoice','meeting','project','schedule'], answer: 0, explain: '「請把發票寄到會計部」。', stemZh: '請把發票寄到會計部。', vocab: ['invoice','department'] },
+    { id: 'q20', day: 2, topic: 'past-simple',  stem: 'They ______ the new printer last week.', options: ['purchase','purchases','purchased','purchasing'], answer: 2, explain: 'last week → 過去式。', stemZh: '他們上週購買了新的印表機。', vocab: ['purchase'] },
+    { id: 'q21', day: 2, topic: 'past-simple',  stem: 'The supervisor ______ in the office yesterday.', options: ['is','was','were','are'], answer: 1, explain: 'yesterday + 單數主詞 → was。', stemZh: '主管昨天在辦公室。', vocab: ['supervisor'] },
+    { id: 'q22', day: 2, topic: 'past-simple',  stem: 'We ______ at the conference last month.', options: ['is','was','were','are'], answer: 2, explain: 'last month + We → were。', stemZh: '我們上個月參加了那場會議。', vocab: ['conference'] },
+    { id: 'q23', day: 2, topic: 'vocab',         stem: 'We received your ______ this morning. Thank you!', options: ['payment','manager','office','colleague'], answer: 0, explain: '「我們今早收到你的款項」。', stemZh: '我們今天早上收到您的款項,謝謝!', vocab: ['payment','receive'] },
+    { id: 'q24', day: 2, topic: 'past-simple',  stem: 'Our team ______ the project ahead of schedule.', options: ['finish','finishes','finished','finishing'], answer: 2, explain: '描述完成的動作，過去式 finished。', stemZh: '我們團隊提前完成了專案。', vocab: ['finish','project','schedule'] },
+    { id: 'q25', day: 2, topic: 'vocab',         stem: 'Please ______ our supplier about the delay.', options: ['contact','contacts','contacting','contacted'], answer: 0, explain: 'Please + 動詞原形。「聯絡供應商」。', stemZh: '請聯絡我們的供應商說明延遲事宜。', vocab: ['contact'] },
+    { id: 'q26', day: 2, topic: 'past-simple',  stem: 'The delivery ______ at 3 p.m. yesterday.', options: ['arrive','arrives','arrived','arriving'], answer: 2, explain: 'yesterday → 過去式。', stemZh: '那批貨昨天下午三點送達。', vocab: ['deliver'] },
+    { id: 'q27', day: 2, topic: 'vocab',         stem: 'I placed an ______ for 50 boxes of paper.', options: ['order','office','employee','manager'], answer: 0, explain: '「下訂單」place an order。', stemZh: '我下了 50 箱紙的訂單。', vocab: ['order'] },
+    { id: 'q28', day: 2, topic: 'past-simple',  stem: 'Mr. Lin ______ the document last night.', options: ['sign','signs','signed','signing'], answer: 2, explain: 'last night → 過去式。', stemZh: '林先生昨晚簽了那份文件。', vocab: ['document'] },
+    { id: 'q29', day: 2, topic: 'past-simple',  stem: 'The clients ______ very happy with our service.', options: ['is','was','were','are'], answer: 2, explain: 'clients 複數 + 過去語境 → were。', stemZh: '那些客戶對我們的服務非常滿意。', vocab: ['client'] },
+    { id: 'q30', day: 2, topic: 'vocab',         stem: 'Our biggest ______ is calling about the new product.', options: ['customer','office','schedule','document'], answer: 0, explain: '「最大的客戶」。', stemZh: '我們最大的客戶正在來電詢問新產品。', vocab: ['customer'] },
 
     // Day 3 — review + integration
-    { id: 'q31', day: 3, topic: 'mixed',         stem: 'The manager ______ all the documents tomorrow.', options: ['will sign','signs','signed','sign'], answer: 0, explain: 'tomorrow → 未來時間 → will + 原形。', vocab: ['document','manager'] },
-    { id: 'q32', day: 3, topic: 'mixed',         stem: 'We ______ the conference next Monday in Taipei.', options: ['attended','attends','will attend','attend'], answer: 2, explain: 'next Monday → 未來。', vocab: ['attend','conference'] },
-    { id: 'q33', day: 3, topic: 'mixed',         stem: 'She ______ the project last week on schedule.', options: ['finishes','finished','finishing','finish'], answer: 1, explain: 'last week → 過去。', vocab: ['finish','project','schedule'] },
-    { id: 'q34', day: 3, topic: 'vocab',         stem: 'The supervisor needs to ______ the meeting time.', options: ['arrange','arranges','arranging','arranged'], answer: 0, explain: 'to + 動詞原形。', vocab: ['arrange','meeting','supervisor'] },
-    { id: 'q35', day: 3, topic: 'mixed',         stem: 'Our department ______ ten employees right now.', options: ['have','has','had','having'], answer: 1, explain: 'department 單數 + 現在式 → has。', vocab: ['department','employee'] },
+    { id: 'q31', day: 3, topic: 'mixed',         stem: 'The manager ______ all the documents tomorrow.', options: ['will sign','signs','signed','sign'], answer: 0, explain: 'tomorrow → 未來時間 → will + 原形。', stemZh: '經理明天會簽署所有的文件。', vocab: ['document','manager'] },
+    { id: 'q32', day: 3, topic: 'mixed',         stem: 'We ______ the conference next Monday in Taipei.', options: ['attended','attends','will attend','attend'], answer: 2, explain: 'next Monday → 未來。', stemZh: '我們下週一會在台北出席會議。', vocab: ['attend','conference'] },
+    { id: 'q33', day: 3, topic: 'mixed',         stem: 'She ______ the project last week on schedule.', options: ['finishes','finished','finishing','finish'], answer: 1, explain: 'last week → 過去。', stemZh: '她上週按計畫完成了那個專案。', vocab: ['finish','project','schedule'] },
+    { id: 'q34', day: 3, topic: 'vocab',         stem: 'The supervisor needs to ______ the meeting time.', options: ['arrange','arranges','arranging','arranged'], answer: 0, explain: 'to + 動詞原形。', stemZh: '主管需要安排會議時間。', vocab: ['arrange','meeting','supervisor'] },
+    { id: 'q35', day: 3, topic: 'mixed',         stem: 'Our department ______ ten employees right now.', options: ['have','has','had','having'], answer: 1, explain: 'department 單數 + 現在式 → has。', stemZh: '我們部門目前有十名員工。', vocab: ['department','employee'] },
   ];
 
   // Maps each day to its lesson modules
@@ -489,7 +489,7 @@
     return next;
   }
 
-  function recordSessionComplete(state, day, correct, total) {
+  function recordSessionComplete(state, day, correct, total, durationSec) {
     const today = new Date().toISOString().slice(0, 10);
     const last = state.lastStudyDate;
     let streak = state.streak || 0;
@@ -505,7 +505,7 @@
       lastLessonEndTime: Date.now(),
       streak,
       currentDay: Math.max(state.currentDay, day + 1),
-      history: [...state.history, { date: today, day, correct, total, ts: Date.now() }],
+      history: [...state.history, { date: today, day, correct, total, durationSec: durationSec || 0, ts: Date.now() }],
     };
   }
 
@@ -656,12 +656,70 @@
   // ============================================================
   //  PRONUNCIATION (Web Speech API)
   // ============================================================
+  // iOS 內建多顆英文語音，品質排序：Premium > Enhanced > Default。
+  // 名字優先序：Ava / Samantha / Allison / Evan / Joelle 都是 Apple 高品質女聲／男聲。
+  // 使用者需要先在 iPhone「設定 → 輔助使用 → 朗讀內容 → 聲音 → 英文」下載增強版／高品質版。
+
+  let _cachedVoice = null;
+
+  function pickBestEnglishVoice() {
+    if (_cachedVoice) return _cachedVoice;
+    const voices = window.speechSynthesis.getVoices();
+    if (!voices || voices.length === 0) return null;
+
+    const en = voices.filter(v => /^en[-_]/i.test(v.lang));
+    if (en.length === 0) return null;
+
+    // 名字優先序（前面的優先）—— 全部是女聲，由自然度排序
+    const PREFERRED_NAMES = ['Ava', 'Samantha', 'Allison', 'Susan', 'Nicky', 'Joelle', 'Karen', 'Moira'];
+
+    const tierScore = (n) => {
+      if (/premium/i.test(n)) return 3;
+      if (/enhanced/i.test(n)) return 2;
+      if (/siri/i.test(n)) return 1;
+      return 0;
+    };
+
+    // 第一輪：在偏好名單中按順序挑（同名字之間取品質最高的 tier）
+    for (const target of PREFERRED_NAMES) {
+      const matches = en.filter(v => new RegExp('\\b' + target + '\\b', 'i').test(v.name || ''));
+      if (matches.length > 0) {
+        matches.sort((a, b) => tierScore(b.name) - tierScore(a.name));
+        _cachedVoice = matches[0];
+        return _cachedVoice;
+      }
+    }
+
+    // 第二輪 fallback：偏好名單裡都沒有，挑任何 Premium/Enhanced 的英文女聲（盡量避開明顯男聲名字）
+    const MALE_NAMES = /\b(Aaron|Albert|Alex|Daniel|Evan|Fred|Gordon|Lee|Oliver|Reed|Rishi|Rocko|Tom)\b/i;
+    const fallback = en
+      .filter(v => !MALE_NAMES.test(v.name || ''))
+      .sort((a, b) => tierScore(b.name) - tierScore(a.name));
+    _cachedVoice = fallback[0] || en[0];
+    return _cachedVoice;
+  }
+
+  // 初始化：iOS Safari 第一次 getVoices() 通常回空陣列，要等 voiceschanged 事件
+  if (typeof window !== 'undefined' && window.speechSynthesis) {
+    window.speechSynthesis.onvoiceschanged = () => {
+      _cachedVoice = null; // 清掉 cache，下次 speak() 會重新挑
+      pickBestEnglishVoice();
+    };
+    pickBestEnglishVoice();
+  }
 
   function speak(text) {
     try {
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'en-US';
+      const voice = pickBestEnglishVoice();
+      if (voice) {
+        u.voice = voice;
+        u.lang = voice.lang;
+      } else {
+        u.lang = 'en-US';
+      }
       u.rate = 0.9;
+      u.pitch = 1.0;
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(u);
     } catch (e) { /* ignore */ }
@@ -1074,23 +1132,23 @@
   function VocabStep({ session, onNext }) {
     const [idx, setIdx] = useState(0);
     const [flipped, setFlipped] = useState(false);
-    const [knownSet, setKnownSet] = useState(new Set());
     const word = session.vocab[idx];
     const total = session.vocab.length;
     const isLast = idx === total - 1;
 
-    const advance = (known) => {
-      setKnownSet(prev => {
-        const next = new Set(prev);
-        if (known) next.add(word.word);
-        return next;
-      });
+    const goNext = () => {
       setFlipped(false);
       if (isLast) {
         onNext();
       } else {
         setIdx(i => i + 1);
       }
+    };
+
+    const goPrev = () => {
+      if (idx === 0) return;
+      setFlipped(false);
+      setIdx(i => i - 1);
     };
 
     if (!word) {
@@ -1133,7 +1191,15 @@
                 <div className="text-2xl sm:text-3xl font-black mb-2">{word.zh}</div>
                 <div className="text-brand-100 text-xs sm:text-sm mb-4">{word.pos}</div>
                 <div className="bg-white/10 rounded-xl p-3 sm:p-4 text-left max-w-md mx-auto">
-                  <div className="text-sm sm:text-base leading-relaxed">{word.example}</div>
+                  <div className="flex items-start gap-2">
+                    <div className="text-sm sm:text-base leading-relaxed flex-1">{word.example}</div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); speak(word.example); }}
+                      className="flex-shrink-0 w-8 h-8 rounded-full bg-white/20 active:bg-white/40 hover:bg-white/30 grid place-items-center text-sm transition"
+                      aria-label="播放例句">
+                      🔊
+                    </button>
+                  </div>
                   <div className="text-xs text-brand-200 mt-1">{word.exampleZh}</div>
                 </div>
                 <button onClick={(e) => { e.stopPropagation(); setFlipped(false); }} className="mt-4 inline-flex items-center gap-1 text-xs text-brand-200 active:text-white">
@@ -1146,11 +1212,16 @@
 
         <div className="sticky-actions">
           <div className="flex gap-3">
-            <button onClick={(e) => { e.stopPropagation(); advance(false); }} className="flex-1 py-3.5 rounded-xl bg-white border-2 border-slate-200 active:border-rose-300 active:bg-rose-50 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700 font-semibold transition text-sm sm:text-base">
-              還不熟
+            <button
+              onClick={(e) => { e.stopPropagation(); goPrev(); }}
+              disabled={idx === 0}
+              className="flex-1 py-3.5 rounded-xl bg-white border-2 border-slate-200 active:border-brand-300 active:bg-brand-50 hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:bg-white disabled:hover:text-slate-400 disabled:cursor-not-allowed font-semibold transition text-sm sm:text-base">
+              ← 上一個
             </button>
-            <button onClick={(e) => { e.stopPropagation(); advance(true); }} className="flex-1 py-3.5 rounded-xl bg-brand-600 active:scale-[0.98] hover:bg-brand-700 text-white font-semibold transition text-sm sm:text-base shadow-soft">
-              記住了 →
+            <button
+              onClick={(e) => { e.stopPropagation(); goNext(); }}
+              className="flex-1 py-3.5 rounded-xl bg-brand-600 active:scale-[0.98] hover:bg-brand-700 text-white font-semibold transition text-sm sm:text-base shadow-soft">
+              {isLast ? '完成 →' : '下一個 →'}
             </button>
           </div>
         </div>
@@ -1301,6 +1372,21 @@
             );
           })}
         </div>
+
+        {revealed && q.stemZh && (
+          <div className="rounded-xl p-3 sm:p-4 mb-2 bg-slate-50 border border-slate-200 fade-up">
+            <div className="text-xs text-slate-500 font-medium mb-1">題目翻譯</div>
+            <div className="flex items-start gap-2">
+              <div className="text-sm text-slate-700 leading-relaxed flex-1">{q.stemZh}</div>
+              <button
+                onClick={() => speak(q.stem.replace(/_+/g, q.options[q.answer]))}
+                className="flex-shrink-0 w-8 h-8 rounded-full bg-white border border-slate-200 active:bg-brand-50 hover:border-brand-300 grid place-items-center text-sm transition"
+                aria-label="播放完整題目">
+                🔊
+              </button>
+            </div>
+          </div>
+        )}
 
         {revealed && (
           <div className={`rounded-xl p-4 mb-2 fade-up ${selected === q.answer ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}>
@@ -1781,7 +1867,7 @@
     const goHome = () => setView('home');
 
     const handleComplete = (result) => {
-      setState(prev => recordSessionComplete(prev, todaySession.day, result.correct, result.total));
+      setState(prev => recordSessionComplete(prev, todaySession.day, result.correct, result.total, result.durationSec));
     };
 
     const handleReset = () => {
