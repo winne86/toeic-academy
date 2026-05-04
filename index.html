@@ -10,8 +10,8 @@
   <meta name="apple-mobile-web-app-title" content="TOEIC" />
   <meta name="format-detection" content="telephone=no" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=3" />
   <title>TOEIC</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1285,9 +1285,13 @@
     const [results, setResults] = useState([]);
     const [shake, setShake] = useState(false);
     const startTime = useRef(Date.now());
+    // 把題目陣列固定下來：答題過程中 reviewQueue 會變動，
+    // 若直接讀 session.questions，最後一題答對後它會從 reviewQueue 被移除，
+    // 導致 idx 超出陣列、誤觸「沒題目」分支。
+    const questions = useRef(session.questions);
 
-    const q = session.questions[idx];
-    const total = session.questions.length;
+    const q = questions.current[idx];
+    const total = questions.current.length;
     const isLast = idx === total - 1;
 
     if (!q) {
@@ -1319,7 +1323,7 @@
       }
     };
 
-    const isReviewQ = !session.questions.slice(0, total - (session.reviewQuestionCount || 0)).find(qq => qq.id === q.id);
+    const isReviewQ = !questions.current.slice(0, total - (session.reviewQuestionCount || 0)).find(qq => qq.id === q.id);
 
     return (
       <div className={`bg-white rounded-2xl sm:rounded-3xl shadow-card border border-slate-100 p-5 sm:p-8 ${shake ? 'shake' : ''}`}>
