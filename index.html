@@ -1402,6 +1402,61 @@
   }
 
   // ============================================================
+  //  EMAIL BACKUP — 匯出完整進度寄到自己的 email
+  // ============================================================
+  // 工作流：點按鈕 → 帶著 JSON 開 Mail App → 使用者按寄出。
+  // Mac/iPhone Claude 之後可以搜尋 Gmail 主題 `[TOEIC Backup]` 取得最新進度。
+
+  const BACKUP_EMAIL = 'winne.whph@gmail.com';
+
+  function buildBackupPayload(state) {
+    return {
+      _metadata: {
+        source: 'TOEIC Academy',
+        url: 'https://winne86.github.io/toeic-academy/',
+        github: 'https://github.com/winne86/toeic-academy',
+        owner: 'winne (winne.whph@gmail.com)',
+        goal: '從 TOEIC 260 衝到 800（8 個月）',
+        description: '個人 TOEIC 學習進度備份。請 AI 把此份資料當作我目前的學習狀態，協助分析弱點、設計記憶口訣、模擬出題、規劃下一步等。',
+        schema: {
+          vocabStats: '{ [word]: { mastery 0-5, seen, correct, wrong, lastSeen } }',
+          questionStats: '{ [qId]: { attempts, correct, wrong, lastSeen } }',
+          topicStats: '{ [topic]: { correct, wrong, confidence 0-100 } }',
+          history: '[ { date, day, correct, total, durationSec, replay? } ]',
+          reviewQueue: '[ qId ]（答錯尚未掌握的題目）',
+          currentDay: '目前學到第幾天',
+          streak: '連續學習天數',
+        },
+        exportedAt: new Date().toISOString(),
+      },
+      ...state,
+    };
+  }
+
+  async function exportToEmail(state) {
+    const payload = buildBackupPayload(state);
+    const json = JSON.stringify(payload, null, 2);
+    const subject = `[TOEIC Backup] ${todayStr()}`;
+
+    // 先備份到剪貼簿（無論如何都複製一份，當保險）
+    try { await navigator.clipboard.writeText(json); } catch (e) { /* ignore */ }
+
+    // 構建 mailto:。URL 編碼後可能很長；超過約 8KB 就放棄塞 body，請使用者貼上。
+    const fullMailto = `mailto:${BACKUP_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(json)}`;
+    if (fullMailto.length <= 8000) {
+      window.location.href = fullMailto;
+      return { ok: true, method: 'mailto' };
+    }
+
+    // 太長：開 Mail 但只塞提示，JSON 已經在剪貼簿
+    const instruction = `(進度 JSON 已自動複製到剪貼簿，請在這裡長按貼上後寄出。)\n\n`;
+    const fallbackMailto = `mailto:${BACKUP_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(instruction)}`;
+    alert('✅ 進度已複製到剪貼簿\n\n即將打開 Mail App，請在內文「長按 → 貼上」後寄出。');
+    window.location.href = fallbackMailto;
+    return { ok: true, method: 'clipboard+mailto' };
+  }
+
+  // ============================================================
   //  COMPONENTS
   // ============================================================
 
@@ -1523,6 +1578,9 @@
         {state.history.length > 0 && (
           <TutorReportButton state={state} primary />
         )}
+
+        {/* Email backup */}
+        <EmailBackupButton state={state} />
 
         {/* Study Calendar */}
         <StudyCalendar state={state} />
@@ -2690,6 +2748,43 @@
               className="w-full h-48 p-3 text-xs font-mono bg-slate-50 border border-slate-200 rounded-lg" />
           </div>
         )}
+      </div>
+    );
+  }
+
+  function EmailBackupButton({ state }) {
+    const [status, setStatus] = useState(null); // null | 'sending' | 'sent'
+
+    const onClick = async () => {
+      setStatus('sending');
+      try {
+        await exportToEmail(state);
+        setStatus('sent');
+        setTimeout(() => setStatus(null), 5000);
+      } catch (e) {
+        setStatus(null);
+      }
+    };
+
+    return (
+      <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-100">
+        <div className="mb-3">
+          <h3 className="font-bold text-slate-800 mb-1">📧 備份進度到 Email</h3>
+          <p className="text-sm text-slate-500">寄一份完整學習進度到 <b>{BACKUP_EMAIL}</b>。建議每週寄一次。Mac 上的 Claude 之後可以從這封信讀到你的最新進度。</p>
+        </div>
+        <button
+          onClick={onClick}
+          className="w-full py-3.5 rounded-xl bg-sky-600 active:scale-[0.98] hover:bg-sky-700 text-white font-bold shadow-soft transition flex items-center justify-center gap-2">
+          {status === 'sending' ? '處理中…' : '💾 匯出進度並寄到我的 Email'}
+        </button>
+        {status === 'sent' && (
+          <div className="mt-3 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg p-3 fade-up">
+            ✅ 已開啟 Mail App。請確認內容後按「寄出」即可。
+          </div>
+        )}
+        <div className="mt-3 text-[11px] text-slate-400">
+          📌 主題會自動帶 <code className="bg-slate-100 px-1 rounded">[TOEIC Backup] YYYY-MM-DD</code>，這樣 Claude 可以精準搜尋到備份信。資料只寄給你自己，不會傳到任何第三方。
+        </div>
       </div>
     );
   }
