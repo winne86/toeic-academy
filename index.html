@@ -227,23 +227,15 @@
   // ============================================================
   //  SYNONYM GROUPS — 同中文/相近意思的單字群
   // ============================================================
+  // 只包含「中文意思真的相同或非常接近」的字，避免使用者看到完全不相關的同類字
   const SYNONYM_GROUPS = [
-    ['announce', 'inform'],            // 宣布 / 通知 — 都是「告知」
-    ['arrange', 'schedule'],           // 安排 / 排程
-    ['finish', 'complete', 'achieve'], // 完成 / 達成
-    ['confirm', 'ensure'],             // 確認 / 確保
-    ['purchase', 'order'],             // 購買 / 訂購
-    ['customer', 'client'],            // 顧客 / 客戶
-    ['review', 'evaluate'],            // 審核 / 評估
-    ['assist', 'handle'],              // 協助 / 處理
-    ['recommend', 'consider'],         // 推薦 / 考慮（皆涉及「判斷後行動」）
-    ['contact', 'respond', 'inform'],  // 聯絡 / 回覆 / 通知 — 溝通動作
-    ['supplier', 'client', 'customer'],// 供應商 / 客戶 / 顧客 — 商業角色
-    ['report', 'document', 'proposal', 'invoice'], // 各種商業文件
-    ['attend', 'discuss', 'prepare'],  // 與會相關
-    ['improve', 'increase', 'progress'], // 進步 / 增加 / 進展
-    ['design', 'produce', 'manufacture', 'launch'], // 設計 / 製造 / 推出
-    ['expect', 'achieve', 'request'],  // 期待 / 達成 / 要求
+    ['arrange', 'schedule'],       // 安排（schedule 也有「安排」之意）
+    ['finish', 'complete'],        // 完成
+    ['customer', 'client'],        // 顧客 / 客戶（皆為買方）
+    ['deliver', 'delivery'],       // 運送（動詞 / 名詞）
+    ['produce', 'manufacture'],    // 生產 / 製造
+    ['announce', 'inform'],        // 宣布 / 通知（皆為告知他人）
+    ['purchase', 'order'],         // 購買 / 訂購
   ];
 
   // 反向索引：word → 所有同類字（去掉自己 + 重複，且只保留 VOCABULARY 裡存在的）
@@ -1383,22 +1375,22 @@
   async function shareReport(state) {
     const report = buildTutorReport(state);
     const text = formatTutorReportText(report);
-    // Try iOS native share sheet first
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: '多益學習進度回報', text });
-        return { ok: true, method: 'share' };
-      } catch (err) {
-        if (err && err.name === 'AbortError') return { ok: false, method: 'cancel' };
-      }
+    const subject = `[TOEIC Tutor Report] ${todayStr()}`;
+
+    // 先複製到剪貼簿當保險
+    try { await navigator.clipboard.writeText(text); } catch (e) { /* ignore */ }
+
+    const fullMailto = `mailto:${BACKUP_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+    if (fullMailto.length <= 8000) {
+      window.location.href = fullMailto;
+      return { ok: true, method: 'mailto' };
     }
-    // Fallback: clipboard
-    try {
-      await navigator.clipboard.writeText(text);
-      return { ok: true, method: 'clipboard' };
-    } catch (err) {
-      return { ok: false, method: 'manual', text };
-    }
+    // 太長：開 Mail 但只塞提示，內容已在剪貼簿
+    const instruction = `(報告內容已自動複製到剪貼簿，請在這裡長按貼上後寄出。)\n\n`;
+    const fallbackMailto = `mailto:${BACKUP_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(instruction)}`;
+    alert('✅ 已複製到剪貼簿\n\n即將打開 Mail App，請在內文「長按 → 貼上」後寄出。');
+    window.location.href = fallbackMailto;
+    return { ok: true, method: 'clipboard+mailto' };
   }
 
   // ============================================================
@@ -1836,42 +1828,111 @@
     const [idx, setIdx] = useState(0);
     const [flipped, setFlipped] = useState(false);
     const [showSynonyms, setShowSynonyms] = useState(false);
-    const swipeRef = useRef(false);
-    const touchRef = useRef({ startX: 0, startY: 0 });
+    const [dragX, setDragX] = useState(0);
+    const [animating, setAnimating] = useState(false);
+    const cardRef = useRef(null);
+    const touchRef = useRef({ startX: 0, startY: 0, decided: false, dragging: false, animating: false, dragX: 0 });
+
     const word = session.vocab[idx];
     const total = session.vocab.length;
     const isLast = idx === total - 1;
 
     const resetCard = () => { setFlipped(false); setShowSynonyms(false); };
-    const goNext = () => {
+    // 用 ref 包起來，這樣 useEffect 內 listener 永遠拿到最新的版本
+    const goNextRef = useRef(() => {});
+    const goPrevRef = useRef(() => {});
+    goNextRef.current = () => {
       resetCard();
       if (isLast) onNext();
       else setIdx(i => i + 1);
     };
-    const goPrev = () => {
+    goPrevRef.current = () => {
       if (idx === 0) return;
       resetCard();
       setIdx(i => i - 1);
     };
 
-    const onTouchStart = (e) => {
-      const t = e.touches[0];
-      touchRef.current = { startX: t.clientX, startY: t.clientY };
-    };
-    const onTouchEnd = (e) => {
-      const t = e.changedTouches[0];
-      const dx = t.clientX - touchRef.current.startX;
-      const dy = t.clientY - touchRef.current.startY;
-      // 水平滑超過 50px 且大於垂直 → 切換上下一個
-      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
-        swipeRef.current = true;
-        setTimeout(() => { swipeRef.current = false; }, 200);
-        if (dx > 0) goPrev();   // 右滑 = 上一個
-        else goNext();          // 左滑 = 下一個
-      }
-    };
+    // 非 passive 的 touchmove 才能 preventDefault 阻止頁面上下捲動
+    useEffect(() => {
+      const el = cardRef.current;
+      if (!el) return;
+
+      const onStart = (e) => {
+        if (touchRef.current.animating) return;
+        const t = e.touches[0];
+        touchRef.current.startX = t.clientX;
+        touchRef.current.startY = t.clientY;
+        touchRef.current.decided = false;
+        touchRef.current.dragging = false;
+        touchRef.current.dragX = 0;
+      };
+
+      const onMove = (e) => {
+        if (touchRef.current.animating) return;
+        const t = e.touches[0];
+        const dx = t.clientX - touchRef.current.startX;
+        const dy = t.clientY - touchRef.current.startY;
+        if (!touchRef.current.decided) {
+          // 動超過 10px 才決定方向（避免極小晃動就鎖死）
+          if (Math.abs(dx) + Math.abs(dy) > 10) {
+            touchRef.current.decided = true;
+            touchRef.current.dragging = Math.abs(dx) > Math.abs(dy);
+          } else return;
+        }
+        if (touchRef.current.dragging) {
+          e.preventDefault();  // 阻止頁面上下捲動
+          touchRef.current.dragX = dx;
+          setDragX(dx);
+        }
+      };
+
+      const onEnd = () => {
+        if (touchRef.current.animating) return;
+        if (!touchRef.current.dragging) return;
+        const dx = touchRef.current.dragX;
+        touchRef.current.dragging = false;
+
+        if (Math.abs(dx) > 80) {
+          // 過閾值 → 整張飛出去
+          touchRef.current.animating = true;
+          setAnimating(true);
+          const flyTo = dx > 0 ? window.innerWidth + 60 : -(window.innerWidth + 60);
+          setDragX(flyTo);
+          setTimeout(() => {
+            if (dx > 0) goPrevRef.current();
+            else goNextRef.current();
+            // 立即拉回 0（新卡片）但先關掉 transition 避免從邊邊飛回來
+            setAnimating(false);
+            setDragX(0);
+            touchRef.current.animating = false;
+          }, 250);
+        } else {
+          // 不夠 → 彈回原位
+          touchRef.current.animating = true;
+          setAnimating(true);
+          setDragX(0);
+          setTimeout(() => {
+            touchRef.current.animating = false;
+            setAnimating(false);
+          }, 220);
+        }
+      };
+
+      el.addEventListener('touchstart', onStart, { passive: true });
+      el.addEventListener('touchmove', onMove, { passive: false });
+      el.addEventListener('touchend', onEnd, { passive: true });
+      el.addEventListener('touchcancel', onEnd, { passive: true });
+      return () => {
+        el.removeEventListener('touchstart', onStart);
+        el.removeEventListener('touchmove', onMove);
+        el.removeEventListener('touchend', onEnd);
+        el.removeEventListener('touchcancel', onEnd);
+      };
+    }, []);
+
     const onCardClick = () => {
-      if (swipeRef.current) return;  // 剛剛是滑動，不要當成點擊
+      // 剛剛在拖動／動畫中 → 不要當成點擊翻面
+      if (Math.abs(dragX) > 5 || animating) return;
       setFlipped(f => !f);
     };
 
@@ -1897,10 +1958,15 @@
         </div>
 
         <div
+          ref={cardRef}
           className="flip-card h-[60vh] max-h-[420px] min-h-[280px] sm:h-80 cursor-pointer select-none"
           onClick={onCardClick}
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}>
+          style={{
+            transform: `translateX(${dragX}px) rotate(${dragX * 0.04}deg)`,
+            transition: animating ? 'transform 0.25s cubic-bezier(0.22, 0.61, 0.36, 1)' : 'none',
+            touchAction: 'pan-y',
+            opacity: Math.max(0.4, 1 - Math.abs(dragX) / (window.innerWidth || 400)),
+          }}>
           <div className="flip-inner" style={{ transform: flipped ? 'rotateY(180deg)' : 'none' }}>
             <div className="flip-front bg-gradient-to-br from-white to-brand-50 border border-brand-100 shadow-card p-6 sm:p-10">
               <div className="text-center w-full">
@@ -2703,49 +2769,33 @@
   }
 
   function TutorReportButton({ state, primary }) {
-    const [status, setStatus] = useState(null); // 'sharing' | 'copied' | 'manual' | 'error'
-    const [manualText, setManualText] = useState('');
-    const ref = useRef(null);
+    const [status, setStatus] = useState(null); // null | 'sending' | 'sent'
 
     const onClick = async () => {
-      setStatus('sharing');
-      const result = await shareReport(state);
-      if (result.ok && result.method === 'share') setStatus('shared');
-      else if (result.ok && result.method === 'clipboard') setStatus('copied');
-      else if (result.method === 'cancel') setStatus(null);
-      else { setManualText(result.text || formatTutorReportText(buildTutorReport(state))); setStatus('manual'); }
+      setStatus('sending');
+      try {
+        await shareReport(state);
+        setStatus('sent');
+        setTimeout(() => setStatus(null), 5000);
+      } catch (e) {
+        setStatus(null);
+      }
     };
 
     return (
       <div className={primary ? 'bg-white rounded-2xl p-5 sm:p-6 shadow-card border border-slate-100' : ''}>
         {primary && (
           <div className="mb-3">
-            <h3 className="font-bold text-slate-800 mb-1">📤 回報給家教</h3>
-            <p className="text-sm text-slate-500">把這次的學習資料一鍵傳給家教，家教會根據你的弱點調整下一輪教材</p>
+            <h3 className="font-bold text-slate-800 mb-1">📤 回報給家教（人類可讀）</h3>
+            <p className="text-sm text-slate-500">寄一份「人類看得懂」的學習摘要到 <b>{BACKUP_EMAIL}</b>。和下面的「備份」差別：這份是給家教 / 你自己看的文字摘要，不是 JSON。</p>
           </div>
         )}
         <button onClick={onClick} className="w-full py-3.5 rounded-xl bg-emerald-600 active:scale-[0.98] hover:bg-emerald-700 text-white font-bold shadow-soft transition flex items-center justify-center gap-2">
-          {status === 'sharing' ? '處理中…' : '📋 一鍵匯出進度給家教'}
+          {status === 'sending' ? '處理中…' : '📋 寄出家教報告到我的 Email'}
         </button>
-
-        {status === 'shared' && (
+        {status === 'sent' && (
           <div className="mt-3 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg p-3 fade-up">
-            ✅ 已開啟分享選單。建議傳給「Claude」或複製到家教對話框中。
-          </div>
-        )}
-        {status === 'copied' && (
-          <div className="mt-3 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg p-3 fade-up">
-            ✅ 已複製到剪貼簿！打開家教對話貼上即可。
-          </div>
-        )}
-        {status === 'manual' && (
-          <div className="mt-3 fade-up">
-            <div className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-3 mb-2">
-              無法自動複製，請長按以下文字選取後複製：
-            </div>
-            <textarea ref={ref} readOnly value={manualText}
-              onFocus={e => e.target.select()}
-              className="w-full h-48 p-3 text-xs font-mono bg-slate-50 border border-slate-200 rounded-lg" />
+            ✅ 已開啟 Mail App。確認內容後按「寄出」即可。
           </div>
         )}
       </div>
