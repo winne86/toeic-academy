@@ -222,6 +222,18 @@
     evaluate:     { word: 'evaluate',     ipa: '/ɪˈvæljuˌet/',    pos: 'v.', zh: '評估', example: 'HR evaluates performance every quarter.', exampleZh: '人資每季評估績效。', day: 7 },
     implement:    { word: 'implement',    ipa: '/ˈɪmpləmɛnt/',    pos: 'v.', zh: '實施；執行', example: 'The company implemented a new policy in May.', exampleZh: '公司在五月實施了新政策。', day: 7 },
     approve:      { word: 'approve',      ipa: '/əˈpruv/',        pos: 'v.', zh: '核准；批准', example: 'The board approved the proposal.', exampleZh: '董事會核准了那份提案。', day: 7 },
+
+    // Day 8 — 不定詞與動名詞：計畫、意圖、活動
+    plan:         { word: 'plan',         ipa: '/plæn/',          pos: 'v./n.', zh: '計畫', example: 'The team plans to launch the product next month.', exampleZh: '團隊計畫下個月推出產品。', day: 8 },
+    decide:       { word: 'decide',       ipa: '/dɪˈsaɪd/',       pos: 'v.', zh: '決定', example: 'She decided to apply for the manager position.', exampleZh: '她決定申請經理職位。', day: 8 },
+    agree:        { word: 'agree',        ipa: '/əˈɡri/',         pos: 'v.', zh: '同意', example: 'The board agreed to approve the budget.', exampleZh: '董事會同意核准預算。', day: 8 },
+    offer:        { word: 'offer',        ipa: '/ˈɔfɚ/',          pos: 'v./n.', zh: '提供；提議', example: 'He offered to assist with the project.', exampleZh: '他主動提議協助這個專案。', day: 8 },
+    refuse:       { word: 'refuse',       ipa: '/rɪˈfjuz/',       pos: 'v.', zh: '拒絕', example: 'The client refused to sign the contract.', exampleZh: '客戶拒絕簽合約。', day: 8 },
+    hesitate:     { word: 'hesitate',     ipa: '/ˈhɛzɪˌtet/',     pos: 'v.', zh: '猶豫', example: "Please don't hesitate to contact me.", exampleZh: '請不要猶豫聯絡我。', day: 8 },
+    enjoy:        { word: 'enjoy',        ipa: '/ɪnˈdʒɔɪ/',       pos: 'v.', zh: '享受；喜歡', example: 'I enjoy working with this team.', exampleZh: '我喜歡和這個團隊合作。', day: 8 },
+    avoid:        { word: 'avoid',        ipa: '/əˈvɔɪd/',        pos: 'v.', zh: '避免', example: 'We should avoid making the same mistake.', exampleZh: '我們應該避免犯同樣的錯。', day: 8 },
+    suggest:      { word: 'suggest',      ipa: '/səɡˈdʒɛst/',     pos: 'v.', zh: '建議', example: 'The supervisor suggested postponing the meeting.', exampleZh: '主管建議延後會議。', day: 8 },
+    practice:     { word: 'practice',     ipa: '/ˈpræktɪs/',      pos: 'v./n.', zh: '練習', example: 'She practices speaking English every day.', exampleZh: '她每天練習說英文。', day: 8 },
   };
 
   // ============================================================
@@ -236,6 +248,8 @@
     ['produce', 'manufacture'],    // 生產 / 製造
     ['announce', 'inform'],        // 宣布 / 通知（皆為告知他人）
     ['purchase', 'order'],         // 購買 / 訂購
+    ['refuse', 'decline'],         // 拒絕
+    ['suggest', 'recommend'],      // 建議
   ];
 
   // 反向索引：word → 所有同類字（去掉自己 + 重複，且只保留 VOCABULARY 裡存在的）
@@ -648,6 +662,86 @@
         },
       ],
     },
+    'infinitive-gerund': {
+      id: 'infinitive-gerund',
+      title: '不定詞 vs 動名詞 (to V vs. V-ing)',
+      day: 8,
+      summary: 'TOEIC Part 5 高頻文法：哪些動詞接 to V、哪些接 V-ing。介系詞後一律 V-ing。',
+      sections: [
+        {
+          heading: '兩種形式的差別',
+          html: `
+            <table class="w-full text-sm border border-slate-200 rounded-lg overflow-hidden mb-3">
+              <thead class="bg-slate-50 text-slate-600">
+                <tr><th class="p-2 text-left">形式</th><th class="p-2 text-left">公式</th><th class="p-2 text-left">語感</th></tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr><td class="p-2"><b>不定詞</b></td><td class="p-2"><code>to + 原形動詞</code></td><td class="p-2">未來、目的、計畫、意圖</td></tr>
+                <tr><td class="p-2"><b>動名詞</b></td><td class="p-2"><code>動詞 + ing</code></td><td class="p-2">事實、過去、興趣、習慣</td></tr>
+              </tbody>
+            </table>
+            <div class="bg-brand-50 border-l-4 border-brand-500 p-3 rounded text-sm">
+              <b>對比：</b><br>
+              I want <b>to learn</b> English.（我想學英文 — 還沒開始，是想法）<br>
+              I enjoy <b>learning</b> English.（我喜歡學英文 — 是事實／興趣）
+            </div>
+          `,
+        },
+        {
+          heading: '動詞分類三大類',
+          html: `
+            <div class="space-y-3 text-sm">
+              <div class="bg-blue-50 border border-blue-200 rounded p-3">
+                <b>① 接 to V — 「未來感」動詞</b><br>
+                <code class="text-xs">plan, decide, agree, offer, refuse, hesitate, want, hope, expect, promise, learn</code>
+                <div class="mt-2 text-slate-600">She <b>decided to apply</b> for the position.<br>（她決定申請那個職位。）</div>
+              </div>
+              <div class="bg-emerald-50 border border-emerald-200 rounded p-3">
+                <b>② 接 V-ing — 「事實感」動詞</b><br>
+                <code class="text-xs">enjoy, avoid, suggest, finish, practice, mind, consider, recommend, postpone</code>
+                <div class="mt-2 text-slate-600">We <b>enjoy working</b> together.<br>（我們喜歡一起工作。）</div>
+              </div>
+              <div class="bg-amber-50 border border-amber-200 rounded p-3">
+                <b>③ 兩者皆可（意思幾乎相同）</b><br>
+                <code class="text-xs">like, love, hate, start, begin, continue, prefer</code>
+                <div class="mt-2 text-slate-600">She <b>started to work / working</b> at 9 a.m.<br>（她九點開始工作。）</div>
+              </div>
+            </div>
+          `,
+        },
+        {
+          heading: '⚠️ 介系詞後面一律 V-ing',
+          html: `
+            <p class="text-sm mb-2">這是 TOEIC Part 5 最常出的陷阱題。</p>
+            <table class="w-full text-sm border border-slate-200 rounded-lg overflow-hidden mb-3">
+              <thead class="bg-slate-50 text-slate-600">
+                <tr><th class="p-2 text-left">片語</th><th class="p-2 text-left">範例</th></tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr><td class="p-2"><code>be interested in + Ving</code></td><td class="p-2">She is interested in <b>working</b> abroad.<br><span class="text-slate-500 text-xs">她有興趣到國外工作。</span></td></tr>
+                <tr><td class="p-2"><code>be good at + Ving</code></td><td class="p-2">He is good at <b>presenting</b>.<br><span class="text-slate-500 text-xs">他擅長做簡報。</span></td></tr>
+                <tr><td class="p-2"><code>look forward to + Ving</code></td><td class="p-2">I look forward to <b>meeting</b> you.<br><span class="text-slate-500 text-xs">期待見到你。</span></td></tr>
+                <tr><td class="p-2"><code>before / after + Ving</code></td><td class="p-2">Please review <b>before submitting</b>.<br><span class="text-slate-500 text-xs">繳交前請先檢查。</span></td></tr>
+              </tbody>
+            </table>
+            <div class="bg-rose-50 border border-rose-200 p-3 rounded text-sm">
+              ❌ I look forward <s>to meet</s> you. （此處 to 是介系詞，不是不定詞！）<br>
+              ✅ I look forward <b>to meeting</b> you.
+            </div>
+          `,
+        },
+        {
+          heading: '記憶口訣',
+          html: `
+            <div class="bg-brand-50 border-l-4 border-brand-500 p-3 rounded text-sm space-y-1">
+              <div>• 「<b>未來感</b>」→ to V（plan, decide, agree, offer, refuse, hesitate）</div>
+              <div>• 「<b>事實／興趣</b>」→ V-ing（enjoy, avoid, suggest, finish, practice）</div>
+              <div>• <b>介系詞後一律 V-ing</b>（in, at, on, before, after, to 當介系詞時）</div>
+            </div>
+          `,
+        },
+      ],
+    },
   };
 
   const QUESTIONS = [
@@ -739,6 +833,18 @@
     { id: 'q73', day: 7, topic: 'passive-voice', stem: 'The new policy ______ implemented in May.', options: ['was','were','is','are'], answer: 0, explain: 'in May (已過) + 單數主詞 → was + p.p.。', stemZh: '新政策在五月被實施。', vocab: ['implement'] },
     { id: 'q74', day: 7, topic: 'vocab',         stem: 'These bags ______ designed by a Taiwanese artist.', options: ['is','was','are','were'], answer: 3, explain: 'These bags 複數 + 過去被動 → were + p.p.。', stemZh: '這些包包是由一位台灣藝術家設計的。', vocab: ['design'] },
     { id: 'q75', day: 7, topic: 'passive-voice', stem: 'The report can ______ submitted online.', options: ['be','is','was','being'], answer: 0, explain: '助動詞 + 被動 = can be + p.p.。', stemZh: '這份報告可以線上繳交。', vocab: ['submit','report'] },
+
+    // Day 8 — 不定詞 vs 動名詞 (10)
+    { id: 'q76', day: 8, topic: 'infinitive-gerund', stem: 'The marketing team plans ______ a new product line in June.', options: ['to launch','launching','launch','launches'], answer: 0, explain: 'plan 後面接 to V → to launch。', stemZh: '行銷團隊計畫六月推出新產品線。', vocab: ['plan','launch'] },
+    { id: 'q77', day: 8, topic: 'infinitive-gerund', stem: 'She enjoys ______ with her colleagues on creative projects.', options: ['to work','work','working','works'], answer: 2, explain: 'enjoy 後面接 V-ing → working。', stemZh: '她喜歡和同事一起做有創意的專案。', vocab: ['enjoy','colleague','project'] },
+    { id: 'q78', day: 8, topic: 'infinitive-gerund', stem: 'The supervisor suggested ______ the meeting until next Monday.', options: ['postpone','postponing','to postpone','postponed'], answer: 1, explain: 'suggest 後面接 V-ing → postponing。', stemZh: '主管建議把會議延到下週一。', vocab: ['suggest','postpone','meeting'] },
+    { id: 'q79', day: 8, topic: 'infinitive-gerund', stem: 'Mr. Lin offered ______ us prepare the presentation.', options: ['help','to help','helping','helps'], answer: 1, explain: 'offer 後面接 to V → to help。', stemZh: '林先生主動提議幫我們準備簡報。', vocab: ['offer','prepare','presentation'] },
+    { id: 'q80', day: 8, topic: 'infinitive-gerund', stem: 'The new policy helps us avoid ______ unnecessary mistakes.', options: ['making','make','to make','made'], answer: 0, explain: 'avoid 後面接 V-ing → making。', stemZh: '新政策幫助我們避免犯不必要的錯誤。', vocab: ['avoid'] },
+    { id: 'q81', day: 8, topic: 'infinitive-gerund', stem: 'The client refused ______ the contract until the price was lowered.', options: ['signing','to sign','sign','signs'], answer: 1, explain: 'refuse 後面接 to V → to sign。', stemZh: '客戶拒絕在價格降低之前簽合約。', vocab: ['refuse','client'] },
+    { id: 'q82', day: 8, topic: 'infinitive-gerund', stem: 'She decided ______ for the senior manager position last week.', options: ['apply','applying','to apply','applies'], answer: 2, explain: 'decide 後面接 to V → to apply。', stemZh: '她上週決定申請資深經理的職位。', vocab: ['decide','manager'] },
+    { id: 'q83', day: 8, topic: 'infinitive-gerund', stem: "The board agreed ______ the proposal at yesterday's meeting.", options: ['approve','to approve','approving','approves'], answer: 1, explain: 'agree 後面接 to V → to approve。', stemZh: '董事會在昨天的會議上同意核准那份提案。', vocab: ['agree','approve','proposal','meeting'] },
+    { id: 'q84', day: 8, topic: 'infinitive-gerund', stem: 'Our team is interested in ______ a new market in Vietnam.', options: ['enter','entering','to enter','entered'], answer: 1, explain: '介系詞 in 後面一律接 V-ing → entering。', stemZh: '我們團隊有興趣進入越南的新市場。', vocab: [] },
+    { id: 'q85', day: 8, topic: 'infinitive-gerund', stem: "Please don't hesitate ______ me if you have any questions.", options: ['contact','contacts','to contact','contacting'], answer: 2, explain: 'hesitate 後面接 to V → to contact。', stemZh: '如果有任何問題，請不要猶豫聯絡我。', vocab: ['hesitate','contact'] },
   ];
 
   // Maps each day to its lesson modules
@@ -792,7 +898,15 @@
       grammar: ['passive-voice'],
       questions: ['q66','q67','q68','q69','q70','q71','q72','q73','q74','q75'],
     },
+    8: {
+      day: 8,
+      title: 'Day 8 · 不定詞與動名詞 (to V vs. V-ing)',
+      vocab: ['plan','decide','agree','offer','refuse','hesitate','enjoy','avoid','suggest','practice'],
+      grammar: ['infinitive-gerund'],
+      questions: ['q76','q77','q78','q79','q80','q81','q82','q83','q84','q85'],
+    },
   };
+  const MAX_DAY = Math.max(...Object.keys(CURRICULUM).map(Number));
 
   // ============================================================
   //  STATE / STORAGE
@@ -933,7 +1047,7 @@
       lastStudyDate: today,
       lastLessonEndTime: Date.now(),
       streak,
-      currentDay: Math.max(state.currentDay, day + 1),
+      currentDay: Math.min(MAX_DAY, Math.max(state.currentDay, day + 1)),
       history: [...state.history, { date: today, day, correct, total, durationSec: durationSec || 0, ts: Date.now() }],
     };
   }
